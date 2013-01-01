@@ -23,7 +23,7 @@ ALL_DRIVERS = \
 	Source/Drivers/DummyDevice \
 	Source/Drivers/PS1080 \
 	Source/Drivers/OniFile \
-	Source/Drivers/Kinect
+	Source/Drivers/freenect
 
 # list all tools
 ALL_TOOLS = 
@@ -41,7 +41,8 @@ CORE_SAMPLES = \
 	Samples/EventBasedRead \
 	Samples/MultipleStreamRead \
 	Samples/MWClosestPoint \
-	Samples/MWClosestPointApp 
+	Samples/MWClosestPointApp \
+	Samples/freenectTest
 	
 ifeq "$(GLUT_SUPPORTED)" "1"
 	ALL_TOOLS += \
@@ -99,7 +100,7 @@ Source/Drivers/DummyDevice:	$(OPENNI) $(XNLIB)
 Source/Drivers/RawDevice:	$(OPENNI) $(XNLIB)
 Source/Drivers/PS1080:		$(OPENNI) $(XNLIB)
 Source/Drivers/OniFile:		$(OPENNI) $(XNLIB)
-Source/Drivers/freenect:		$(XNLIB)
+Source/Drivers/freenect:	$(XNLIB)
 
 Source/Tools/NiViewer:		$(OPENNI) $(XNLIB)
 
@@ -108,6 +109,7 @@ Samples/EventBasedRead:		$(OPENNI)
 Samples/MultipleStreamRead:	$(OPENNI)
 Samples/MWClosestPoint:		$(OPENNI)
 Samples/MWClosestPointApp: 	$(OPENNI) Samples/MWClosestPoint
+Samples/freenectTest: $(OPENNI) Source/Drivers/freenect
 
 Samples/SimpleViewer:		$(OPENNI)
 Samples/MultiDepthViewer:	$(OPENNI)
