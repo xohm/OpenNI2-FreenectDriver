@@ -41,8 +41,7 @@ CORE_SAMPLES = \
 	Samples/EventBasedRead \
 	Samples/MultipleStreamRead \
 	Samples/MWClosestPoint \
-	Samples/MWClosestPointApp \
-	Samples/freenectTest
+	Samples/MWClosestPointApp
 	
 ifeq "$(GLUT_SUPPORTED)" "1"
 	ALL_TOOLS += \
@@ -109,7 +108,6 @@ Samples/EventBasedRead:		$(OPENNI)
 Samples/MultipleStreamRead:	$(OPENNI)
 Samples/MWClosestPoint:		$(OPENNI)
 Samples/MWClosestPointApp: 	$(OPENNI) Samples/MWClosestPoint
-Samples/freenectTest: $(OPENNI) Source/Drivers/freenect
 
 Samples/SimpleViewer:		$(OPENNI)
 Samples/MultiDepthViewer:	$(OPENNI)
