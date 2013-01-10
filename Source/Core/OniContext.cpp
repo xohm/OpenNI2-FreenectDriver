@@ -177,6 +177,9 @@ XnStatus Context::loadLibraries(const char* directoryName)
 	FileName* acsFileList = XN_NEW_ARR(FileName, nFileCount);
 	nRetVal = xnOSGetFileList(cpSearchPattern, cpSearchPath, acsFileList, nFileCount, &nFileCount);
 
+	// Return to directory
+	xnOSSetCurrentDir(workingDir);
+
 	for (int i = 0; i < nFileCount; ++i)
 	{
 		DeviceDriver* pDeviceDriver = XN_NEW(DeviceDriver, acsFileList[i], m_errorLogger);
@@ -202,9 +205,6 @@ XnStatus Context::loadLibraries(const char* directoryName)
 		m_deviceDrivers.AddLast(pDeviceDriver);
 		m_cs.Unlock();
 	}
-
-	// Return to directory
-	xnOSSetCurrentDir(workingDir);
 
 	if (m_deviceDrivers.Size() == 0)
 	{
