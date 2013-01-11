@@ -10,7 +10,6 @@ class FreenectColorStream : public FreenectVideoStream
 {
 private:
 	static const OniSensorType sensor_type = ONI_SENSOR_COLOR;
-	static const OniVideoMode default_video_mode;
 	static FreenectVideoModeMap getSupportedVideoModes();
 	virtual void populateFrame(void* data, OniDriverFrame* pFrame) const;
 	OniStatus setVideoMode(OniVideoMode requested_mode)
@@ -34,7 +33,7 @@ private:
 	}
 
 public:
-	FreenectColorStream(Freenect::FreenectDevice* pDevice) : FreenectVideoStream(pDevice) { mirroring = false; setVideoMode(default_video_mode); }
+	FreenectColorStream(Freenect::FreenectDevice* pDevice);
 	~FreenectColorStream() { }
 	
 	static OniSensorInfo getSensorInfo()

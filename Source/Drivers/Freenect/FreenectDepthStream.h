@@ -10,10 +10,10 @@ class FreenectDepthStream : public FreenectVideoStream
 {
 protected:
 	typedef std::map< OniVideoMode, std::pair<freenect_depth_format, freenect_resolution> > FreenectDepthModeMap;
+	OniImageRegistrationMode image_registration_mode;
 	
 private:
 	static const OniSensorType sensor_type = ONI_SENSOR_DEPTH;
-	static const OniVideoMode default_video_mode;
 	static FreenectDepthModeMap getSupportedVideoModes();
 	virtual void populateFrame(void* data, OniDriverFrame* pFrame) const;
 	OniStatus setVideoMode(OniVideoMode requested_mode)
@@ -25,6 +25,8 @@ private:
 		
 		freenect_depth_format format = matched_mode_iter->second.first;
 		freenect_resolution resolution = matched_mode_iter->second.second;
+		if (image_registration_mode == ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR) // force registration mode
+			format = FREENECT_DEPTH_REGISTERED;
 		
 		try { device->setDepthFormat(format, resolution); }
 		catch (std::runtime_error e)
@@ -37,7 +39,7 @@ private:
 	}
 
 public:
-	FreenectDepthStream(Freenect::FreenectDevice* pDevice) : FreenectVideoStream(pDevice) { mirroring = false; setVideoMode(default_video_mode); }
+	FreenectDepthStream(Freenect::FreenectDevice* pDevice);
 	~FreenectDepthStream() { }
 	
 	static OniSensorInfo getSensorInfo()
@@ -46,6 +48,15 @@ public:
 		OniVideoMode* modes = new OniVideoMode[supported_modes.size()];
 		std::transform(supported_modes.begin(), supported_modes.end(), modes, RetrieveKey());
 		return { sensor_type, SIZE(modes), modes }; // sensorType, numSupportedVideoModes, pSupportedVideoModes
+	}
+	virtual OniBool isImageRegistrationModeSupported(OniImageRegistrationMode mode);
+	OniImageRegistrationMode getImageRegistrationMode() const { return image_registration_mode; }
+	virtual OniStatus setImageRegistrationMode(OniImageRegistrationMode mode)
+	{
+		if (!isImageRegistrationModeSupported(mode))
+			return ONI_STATUS_NOT_SUPPORTED;
+		image_registration_mode = mode;
+		return ONI_STATUS_OK;
 	}
 	
 	// from StreamBase

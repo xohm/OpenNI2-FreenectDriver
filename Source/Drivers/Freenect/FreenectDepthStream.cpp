@@ -1,17 +1,29 @@
 #include "FreenectDepthStream.h"
 
 
-const OniVideoMode FreenectDepthStream::default_video_mode = makeOniVideoMode(ONI_PIXEL_FORMAT_DEPTH_1_MM, 640, 480, 30);
+FreenectDepthStream::FreenectDepthStream(Freenect::FreenectDevice* pDevice) : FreenectVideoStream(pDevice)
+{
+	video_mode = makeOniVideoMode(ONI_PIXEL_FORMAT_DEPTH_1_MM, 640, 480, 30);
+	image_registration_mode = ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR;
+	mirroring = false;
+	setVideoMode(video_mode);
+}
 
 // Add video modes here as you implement them
+// Note: if image_registration_mode == ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR,
+// freenect_video_format will always be FREENECT_DEPTH_REGISTERED regardless of what is set here.
 FreenectDepthStream::FreenectDepthModeMap FreenectDepthStream::getSupportedVideoModes()
 {
 	FreenectDepthModeMap modes;
-	//										pixelFormat, resolutionX, resolutionY, fps		freenect_video_format, freenect_resolution											
-	modes[makeOniVideoMode(ONI_PIXEL_FORMAT_DEPTH_1_MM, 640, 480, 30)] = { FREENECT_DEPTH_REGISTERED, FREENECT_RESOLUTION_MEDIUM };
-		
+	//											pixelFormat, resolutionX, resolutionY, fps		freenect_video_format, freenect_resolution						
+	modes[makeOniVideoMode(ONI_PIXEL_FORMAT_DEPTH_1_MM, 640, 480, 30)] = { FREENECT_DEPTH_MM, FREENECT_RESOLUTION_MEDIUM };
+	
 	
 	return modes;
+}
+OniBool FreenectDepthStream::isImageRegistrationModeSupported(OniImageRegistrationMode mode)
+{
+	return (mode == ONI_IMAGE_REGISTRATION_OFF || mode == ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR);
 }
 void FreenectDepthStream::populateFrame(void* data, OniDriverFrame* pFrame) const
 {	

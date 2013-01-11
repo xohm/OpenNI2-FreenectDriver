@@ -1,7 +1,12 @@
 #include "FreenectColorStream.h"
 
 
-const OniVideoMode FreenectColorStream::default_video_mode = makeOniVideoMode(ONI_PIXEL_FORMAT_RGB888, 640, 480, 30);
+FreenectColorStream::FreenectColorStream(Freenect::FreenectDevice* pDevice) : FreenectVideoStream(pDevice)
+{
+	video_mode = makeOniVideoMode(ONI_PIXEL_FORMAT_RGB888, 640, 480, 30);
+	mirroring = false;
+	setVideoMode(video_mode);
+}
 
 // Add video modes here as you implement them
 FreenectVideoStream::FreenectVideoModeMap FreenectColorStream::getSupportedVideoModes()

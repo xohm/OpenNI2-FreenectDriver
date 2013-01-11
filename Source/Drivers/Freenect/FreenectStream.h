@@ -65,7 +65,7 @@ public:
 	}
 
 	// from StreamBase
-	OniStatus start() {	running = true;	return ONI_STATUS_OK;	}
+	OniStatus start() { running = true; return ONI_STATUS_OK; }
 	void stop() { running = false; }
 	virtual void addRefToFrame(OniDriverFrame* pFrame) { ++((FreenectStreamFrameCookie*)pFrame->pDriverCookie)->refCount; }
 	virtual void releaseFrame(OniDriverFrame* pFrame)

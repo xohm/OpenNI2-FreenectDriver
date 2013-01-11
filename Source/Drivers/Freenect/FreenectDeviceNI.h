@@ -21,7 +21,7 @@ public:
 
 	// from DeviceBase
 	OniStatus getSensorInfoList(OniSensorInfo** pSensors, int* numSensors);
-	virtual OniBool isImageRegistrationModeSupported(OniImageRegistrationMode mode) { return (mode == ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR); }
+	virtual OniBool isImageRegistrationModeSupported(OniImageRegistrationMode mode) { return depth_stream->isImageRegistrationModeSupported(mode); }
 	StreamBase* createStream(OniSensorType sensorType);
 	void destroyStream(StreamBase* pStream);
 	// property and command handlers are empty skeletons by default
@@ -38,11 +38,19 @@ public:
 			case ONI_DEVICE_PROPERTY_HARDWARE_VERSION:				// int
 			case ONI_DEVICE_PROPERTY_SERIAL_NUMBER:						// string
 			case ONI_DEVICE_PROPERTY_ERROR_STATE:							// ?
-			case ONI_DEVICE_PROPERTY_IMAGE_REGISTRATION:			// OniImageRegistrationMode
 			// files
 			case ONI_DEVICE_PROPERTY_PLAYBACK_SPEED:					// float
 			case ONI_DEVICE_PROPERTY_PLAYBACK_REPEAT_ENABLED:	// OniBool
 				return ONI_STATUS_NOT_SUPPORTED;
+				
+			case ONI_DEVICE_PROPERTY_IMAGE_REGISTRATION:			// OniImageRegistrationMode
+				if (*pDataSize != sizeof(OniImageRegistrationMode))
+				{
+					printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(OniImageRegistrationMode));
+					return ONI_STATUS_ERROR;
+				}
+				*(static_cast<OniImageRegistrationMode*>(data)) = depth_stream->getImageRegistrationMode();
+				return ONI_STATUS_OK;
 		}
 	}
 	virtual OniStatus setProperty(int propertyId, const void* data, int dataSize)
@@ -55,11 +63,18 @@ public:
 			case ONI_DEVICE_PROPERTY_HARDWARE_VERSION:				// int
 			case ONI_DEVICE_PROPERTY_SERIAL_NUMBER:						// string
 			case ONI_DEVICE_PROPERTY_ERROR_STATE:							// ?
-			case ONI_DEVICE_PROPERTY_IMAGE_REGISTRATION:			// OniImageRegistrationMode
 			// files
 			case ONI_DEVICE_PROPERTY_PLAYBACK_SPEED:					// float
 			case ONI_DEVICE_PROPERTY_PLAYBACK_REPEAT_ENABLED:	// OniBool
 				return ONI_STATUS_NOT_SUPPORTED;
+
+			case ONI_DEVICE_PROPERTY_IMAGE_REGISTRATION:			// OniImageRegistrationMode
+				if (dataSize != sizeof(OniImageRegistrationMode))
+				{
+					printf("Unexpected size: %d != %d\n", dataSize, sizeof(OniImageRegistrationMode));
+					return ONI_STATUS_ERROR;
+				}
+				return depth_stream->setImageRegistrationMode(*(static_cast<const OniImageRegistrationMode*>(data)));
 		}
 	}
 	OniBool isCommandSupported(int propertyId) { return (invoke(propertyId, NULL, NULL) != ONI_STATUS_NOT_SUPPORTED); }
