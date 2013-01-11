@@ -1,3 +1,18 @@
+OpenNI2-FreenectDriver
+----------------------
+
+This branch contains FreenectDriver, which allows OpenNI2 to use libfreenect for Kinect support.
+Therefore, the following prerequisite is added on top of those for the regular build (found below):
+   libfreenect                  - https://github.com/OpenKinect/libfreenect
+   OR
+   libfreenect with K4W support - https://github.com/zarvox/libfreenect/tree/k4w-wip
+
+For more information, see Source/Drivers/Freenect/README.
+
+This repository's master branch is based on the OpenNI2 develop branch.
+FreenectDriver-original is based on the OpenNI2 master branch; it is kept only for reference.
+
+
 OpenNI
 ------
 

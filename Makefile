@@ -10,9 +10,6 @@
 # By default, CLR projects will only be build if mono is installed.
 # To force CLR projects use:
 #   make FORCE_BUILD_CLR=1
-#
-# To enable the beta FreenectDriver that uses libfreenect for Kinect support:
-# 	make USE_FREENECT=1
 #############################################################################
 
 include ThirdParty/PSCommon/BuildSystem/CommonDefs.mak
@@ -24,12 +21,8 @@ XNLIB  = ThirdParty/PSCommon/XnLib/Source
 ALL_DRIVERS = \
 	Source/Drivers/DummyDevice \
 	Source/Drivers/PS1080 \
-	Source/Drivers/OniFile
-	
-ifeq "$(USE_FREENECT)" "1"
-	ALL_DRIVERS += \
-		Source/Drivers/Freenect
-endif
+	Source/Drivers/OniFile \
+	Source/Drivers/Freenect
 
 # list all tools
 ALL_TOOLS = 

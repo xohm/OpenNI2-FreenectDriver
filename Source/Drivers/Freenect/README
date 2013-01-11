@@ -1,16 +1,12 @@
 FreenectDriver is a translation layer to libfreenect implemented as an OpenNI2 driver.
 It allows use of Kinect hardware as supported by libfreenect.
-It is currently capable of providing depth and video streams at 640x480 @ 30 fps.
 Copyright information appears in FreenectDriver.h
 The Apache 2.0 license is available in the root of this project.
 
-
 	dependencies:
 libfreenect                  - https://github.com/OpenKinect/libfreenect
+OR
 libfreenect with K4W support - https://github.com/zarvox/libfreenect/tree/k4w-wip
-
-	build:
-make USE_FREENECT=1
 
 
 	structure:
@@ -40,13 +36,13 @@ To implement a new mode, simply add it to getSupportedVideoModes() and modify po
 
 	TODO:
 FreenectIRStream
-polish and publish Gentoo ebuilds
 acquire and test with original Kinect (within 2 weeks) - please report issues!
-support more FREENECT_RESOLUTION and FREENECT_VIDEO
 allow toggling image registration
-PROPER LOGGING!
-provide more OniVideoMode and OniStreamProperty
 improve K4W support in libfreenect
+polish and publish Gentoo ebuilds
+PROPER LOGGING!
+support more FREENECT_RESOLUTION and FREENECT_VIDEO
+provide more OniVideoMode and OniStreamProperty
 implement interesting derived functions
 tilt motor support
 OSX support - please hack!

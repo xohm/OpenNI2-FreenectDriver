@@ -1,6 +1,6 @@
 /**
 *  FreenectDriver
-*  Copyright 2012 Benn Snyder <benn.snyder@gmail.com>
+*  Copyright 2013 Benn Snyder <benn.snyder@gmail.com>
 *  
 *  OpenNI 2.x Alpha
 *  Copyright (C) 2012 PrimeSense Ltd.
