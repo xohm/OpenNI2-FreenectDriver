@@ -1,16 +1,12 @@
 FreenectDriver is a translation layer to libfreenect implemented as an OpenNI2 driver.
 It allows use of Kinect hardware as supported by libfreenect.
-It is currently capable of providing depth and video streams at 640x480 @ 30 fps.
 Copyright information appears in FreenectDriver.h
 The Apache 2.0 license is available in the root of this project.
 
-
 	dependencies:
 libfreenect                  - https://github.com/OpenKinect/libfreenect
+OR
 libfreenect with K4W support - https://github.com/zarvox/libfreenect/tree/k4w-wip
-
-	build:
-make USE_FREENECT=1
 
 
 	structure:
