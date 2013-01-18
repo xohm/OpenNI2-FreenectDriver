@@ -10,7 +10,7 @@
 
 
 // these are from DepthKinectStream.cpp
-// please check if they are right
+// please check that they are right
 static const unsigned long long GAIN_VAL = 42;
 static const unsigned long long CONST_SHIFT_VAL = 200;
 static const unsigned long long MAX_SHIFT_VAL = 2047;
@@ -40,13 +40,19 @@ private:
 		
 		freenect_depth_format format = matched_mode_iter->second.first;
 		freenect_resolution resolution = matched_mode_iter->second.second;
-		if (image_registration_mode == ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR) // force registration mode
+		if (image_registration_mode == ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR) // try forcing registration mode
 			format = FREENECT_DEPTH_REGISTERED;
 		
 		try { device->setDepthFormat(format, resolution); }
 		catch (std::runtime_error e)
 		{
 			printf("format-resolution combination not supported by libfreenect: %d-%d\n", format, resolution);
+			if (image_registration_mode == ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR)
+			{
+				printf("could not use image registration format; disabling registration and falling back to format defined in getSupportedVideoModes()\n");
+				image_registration_mode = ONI_IMAGE_REGISTRATION_OFF;
+				return setVideoMode(requested_mode);
+			}
 			return ONI_STATUS_NOT_SUPPORTED;
 		}
 		video_mode = requested_mode;
@@ -64,7 +70,10 @@ public:
 		std::transform(supported_modes.begin(), supported_modes.end(), modes, RetrieveKey());
 		return { sensor_type, SIZE(modes), modes }; // sensorType, numSupportedVideoModes, pSupportedVideoModes
 	}
-	virtual OniBool isImageRegistrationModeSupported(OniImageRegistrationMode mode);
+	virtual OniBool isImageRegistrationModeSupported(OniImageRegistrationMode mode)
+	{
+		return (mode == ONI_IMAGE_REGISTRATION_OFF || mode == ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR);
+	}
 	OniImageRegistrationMode getImageRegistrationMode() const { return image_registration_mode; }
 	virtual OniStatus setImageRegistrationMode(OniImageRegistrationMode mode)
 	{
