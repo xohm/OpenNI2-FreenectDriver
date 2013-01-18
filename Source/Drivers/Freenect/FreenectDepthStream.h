@@ -3,7 +3,22 @@
 
 #include "FreenectVideoStream.h"
 #include "Driver/OniDriverAPI.h"
+#include "PS1080.h"
+#include "../Kinect/S2D.h.h"
+#include "../Kinect/D2S.h.h"
 #include "libfreenect.hpp"
+
+
+// these are from DepthKinectStream.cpp
+// please check if they are right
+static const unsigned long long GAIN_VAL = 42;
+static const unsigned long long CONST_SHIFT_VAL = 200;
+static const unsigned long long MAX_SHIFT_VAL = 2047;
+static const unsigned long long PARAM_COEFF_VAL = 4;
+static const unsigned long long SHIFT_SCALE_VAL = 10;
+static const unsigned long long ZERO_PLANE_DISTANCE_VAL = 120;
+static const double ZERO_PLANE_PIXEL_SIZE_VAL = 0.10520000010728836;
+static const double EMITTER_DCMOS_DISTANCE_VAL = 7.5;
 
 
 class FreenectDepthStream : public FreenectVideoStream
@@ -60,6 +75,99 @@ public:
 	}
 	
 	// from StreamBase
+	virtual OniStatus getProperty(int propertyId, void* data, int* pDataSize)
+	{
+		switch (propertyId)
+		{
+			default:
+				return FreenectVideoStream::getProperty(propertyId, data, pDataSize);
+
+			case XN_STREAM_PROPERTY_PIXEL_REGISTRATION:			// XnPixelRegistration (get only)
+			case XN_STREAM_PROPERTY_WHITE_BALANCE_ENABLED:	// unsigned long long
+			case XN_STREAM_PROPERTY_HOLE_FILTER:						// unsigned long long
+			case XN_STREAM_PROPERTY_REGISTRATION_TYPE:			// XnProcessingType
+			case XN_STREAM_PROPERTY_AGC_BIN:								// XnDepthAGCBin*
+			case XN_STREAM_PROPERTY_PIXEL_SIZE_FACTOR:			// unsigned long long
+			case XN_STREAM_PROPERTY_DCMOS_RCMOS_DISTANCE:		// double
+			case XN_STREAM_PROPERTY_CLOSE_RANGE:						// unsigned long long
+				return ONI_STATUS_NOT_SUPPORTED;
+			
+			case XN_STREAM_PROPERTY_GAIN:										// unsigned long long
+				if (*pDataSize != sizeof(unsigned long long))
+				{
+					printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(unsigned long long));
+					return ONI_STATUS_ERROR;
+				}
+				*(static_cast<unsigned long long*>(data)) = GAIN_VAL;
+				return ONI_STATUS_OK;
+			case XN_STREAM_PROPERTY_CONST_SHIFT:						// unsigned long long
+				if (*pDataSize != sizeof(unsigned long long))
+				{
+					printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(unsigned long long));
+					return ONI_STATUS_ERROR;
+				}
+				*(static_cast<unsigned long long*>(data)) = CONST_SHIFT_VAL;
+				return ONI_STATUS_OK;
+			case XN_STREAM_PROPERTY_MAX_SHIFT:							// unsigned long long
+				if (*pDataSize != sizeof(unsigned long long))
+				{
+					printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(unsigned long long));
+					return ONI_STATUS_ERROR;
+				}
+				*(static_cast<unsigned long long*>(data)) = MAX_SHIFT_VAL;
+				return ONI_STATUS_OK;
+			case XN_STREAM_PROPERTY_PARAM_COEFF:						// unsigned long long
+				if (*pDataSize != sizeof(unsigned long long))
+				{
+					printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(unsigned long long));
+					return ONI_STATUS_ERROR;
+				}
+				*(static_cast<unsigned long long*>(data)) = PARAM_COEFF_VAL;
+				return ONI_STATUS_OK;
+			case XN_STREAM_PROPERTY_SHIFT_SCALE:						// unsigned long long
+				if (*pDataSize != sizeof(unsigned long long))
+				{
+					printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(unsigned long long));
+					return ONI_STATUS_ERROR;
+				}
+				*(static_cast<unsigned long long*>(data)) = SHIFT_SCALE_VAL;
+				return ONI_STATUS_OK;
+			case XN_STREAM_PROPERTY_ZERO_PLANE_DISTANCE:		// unsigned long long
+				if (*pDataSize != sizeof(unsigned long long))
+				{
+					printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(unsigned long long));
+					return ONI_STATUS_ERROR;
+				}
+				*(static_cast<unsigned long long*>(data)) = ZERO_PLANE_DISTANCE_VAL;
+				return ONI_STATUS_OK;
+			case XN_STREAM_PROPERTY_ZERO_PLANE_PIXEL_SIZE:	// double
+				if (*pDataSize != sizeof(double))
+				{
+					printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(double));
+					return ONI_STATUS_ERROR;
+				}
+				*(static_cast<double*>(data)) = ZERO_PLANE_PIXEL_SIZE_VAL;
+				return ONI_STATUS_OK;
+			case XN_STREAM_PROPERTY_EMITTER_DCMOS_DISTANCE:	// double
+				if (*pDataSize != sizeof(double))
+				{
+					printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(double));
+					return ONI_STATUS_ERROR;
+				}
+				*(static_cast<double*>(data)) = EMITTER_DCMOS_DISTANCE_VAL;
+				return ONI_STATUS_OK;
+			case XN_STREAM_PROPERTY_S2D_TABLE:							// OniDepthPixel[]
+				*pDataSize = sizeof(S2D);
+				//std::copy(S2D, S2D+sizeof(S2D), static_cast<OniDepthPixel*>(data));
+				xnOSMemCopy(data, S2D, sizeof(S2D));
+				return ONI_STATUS_OK;
+			case XN_STREAM_PROPERTY_D2S_TABLE:							// unsigned short[]
+				*pDataSize = sizeof(D2S);
+				//std::copy(D2S, D2S+sizeof(D2S), static_cast<unsigned short*>(data));
+				xnOSMemCopy(data, D2S, sizeof(D2S));
+				return ONI_STATUS_OK;
+		}
+	}
 	virtual OniStatus setProperty(int propertyId, const void* data, int dataSize);
 };
 

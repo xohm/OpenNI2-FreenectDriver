@@ -3,6 +3,7 @@
 
 #include "libfreenect.hpp"
 #include "Driver/OniDriverAPI.h"
+#include "PS1080.h"
 #include "FreenectDepthStream.h"
 #include "FreenectColorStream.h"
 
@@ -41,6 +42,13 @@ public:
 			// files
 			case ONI_DEVICE_PROPERTY_PLAYBACK_SPEED:					// float
 			case ONI_DEVICE_PROPERTY_PLAYBACK_REPEAT_ENABLED:	// OniBool
+			// xn
+			case XN_MODULE_PROPERTY_USB_INTERFACE:						// XnSensorUsbInterface
+			case XN_MODULE_PROPERTY_MIRROR:										// bool
+			case XN_MODULE_PROPERTY_RESET_SENSOR_ON_STARTUP:	// unsigned long long
+			case XN_MODULE_PROPERTY_LEAN_INIT:								// unsigned long long
+			case XN_MODULE_PROPERTY_SERIAL_NUMBER:						// unsigned long long
+			case XN_MODULE_PROPERTY_VERSION:									// XnVersions
 				return ONI_STATUS_NOT_SUPPORTED;
 				
 			case ONI_DEVICE_PROPERTY_IMAGE_REGISTRATION:			// OniImageRegistrationMode
@@ -52,7 +60,7 @@ public:
 				*(static_cast<OniImageRegistrationMode*>(data)) = depth_stream->getImageRegistrationMode();
 				return ONI_STATUS_OK;
 		}
-	}
+	}	
 	virtual OniStatus setProperty(int propertyId, const void* data, int dataSize)
 	{
 		switch (propertyId)
@@ -66,6 +74,20 @@ public:
 			// files
 			case ONI_DEVICE_PROPERTY_PLAYBACK_SPEED:					// float
 			case ONI_DEVICE_PROPERTY_PLAYBACK_REPEAT_ENABLED:	// OniBool
+			// xn
+			case XN_MODULE_PROPERTY_USB_INTERFACE:						// XnSensorUsbInterface
+			case XN_MODULE_PROPERTY_MIRROR:										// bool
+			case XN_MODULE_PROPERTY_RESET_SENSOR_ON_STARTUP:	// unsigned long long
+			case XN_MODULE_PROPERTY_LEAN_INIT:								// unsigned long long
+			case XN_MODULE_PROPERTY_SERIAL_NUMBER:						// unsigned long long
+			case XN_MODULE_PROPERTY_VERSION:									// XnVersions
+			// xn commands
+			case XN_MODULE_PROPERTY_FIRMWARE_PARAM:						// XnInnerParam
+			case XN_MODULE_PROPERTY_RESET:										// unsigned long long
+			case XN_MODULE_PROPERTY_IMAGE_CONTROL:						// XnControlProcessingData
+			case XN_MODULE_PROPERTY_DEPTH_CONTROL:						// XnControlProcessingData
+			case XN_MODULE_PROPERTY_AHB:											// XnAHBData
+			case XN_MODULE_PROPERTY_LED_STATE:								// XnLedState
 				return ONI_STATUS_NOT_SUPPORTED;
 
 			case ONI_DEVICE_PROPERTY_IMAGE_REGISTRATION:			// OniImageRegistrationMode

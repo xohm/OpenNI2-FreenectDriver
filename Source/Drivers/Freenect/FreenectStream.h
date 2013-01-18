@@ -3,6 +3,7 @@
 
 #include "libfreenect.hpp"
 #include "Driver/OniDriverAPI.h"
+#include "PS1080.h"
 #include "XnLib.h"
 
 
@@ -76,7 +77,7 @@ public:
 			xnOSFreeAligned(pFrame->frame.data);
 			xnOSFree(pFrame);
 		}
-	}
+	}	
 	// property handlers are empty skeletons by default
 	// only add here if the property is generic to all children
 	// otherwise, implement in child and call these in default case (see FreenectVideoStream.h)
@@ -98,6 +99,9 @@ public:
 			// camera
 			case ONI_STREAM_PROPERTY_AUTO_WHITE_BALANCE:	// OniBool
 			case ONI_STREAM_PROPERTY_AUTO_EXPOSURE:				// OniBool
+			// xn
+			case XN_STREAM_PROPERTY_INPUT_FORMAT:					// unsigned long long
+			case XN_STREAM_PROPERTY_CROPPING_MODE:				// XnCroppingMode
 				return ONI_STATUS_NOT_SUPPORTED;
 		}
 	}
@@ -118,6 +122,9 @@ public:
 			// camera
 			case ONI_STREAM_PROPERTY_AUTO_WHITE_BALANCE:	// OniBool
 			case ONI_STREAM_PROPERTY_AUTO_EXPOSURE:				// OniBool
+			// xn
+			case XN_STREAM_PROPERTY_INPUT_FORMAT:					// unsigned long long
+			case XN_STREAM_PROPERTY_CROPPING_MODE:				// XnCroppingMode
 				return ONI_STATUS_NOT_SUPPORTED;
 		}
 	}

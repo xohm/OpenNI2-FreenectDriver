@@ -10,7 +10,7 @@ libfreenect with K4W support - https://github.com/zarvox/libfreenect/tree/k4w-wi
 
 
 	structure:
-This module is modeled heavily on TestDevice.cpp and Drivers/Kinect/
+This module is modeled on TestDevice.cpp and Drivers/Kinect/
 It ties together the C++ interfaces of OpenNI2 and libfreenect using multiple inheritance.
 
 FreenectDriver inherits publically from DriverBase and privately from Freenect::Freenect.
@@ -37,7 +37,6 @@ To implement a new mode, simply add it to getSupportedVideoModes() and modify po
 	TODO:
 FreenectIRStream
 acquire and test with original Kinect (within 2 weeks) - please report issues!
-allow toggling image registration
 improve K4W support in libfreenect
 polish and publish Gentoo ebuilds
 PROPER LOGGING!

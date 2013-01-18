@@ -26,7 +26,6 @@ static bool operator<(const OniVideoMode& left, const OniVideoMode& right)
 	return (left.resolutionX*left.resolutionY < right.resolutionX*right.resolutionY);
 }
 
-
 class FreenectVideoStream : public FreenectStream
 {	
 private:
