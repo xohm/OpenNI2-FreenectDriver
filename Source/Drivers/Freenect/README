@@ -36,8 +36,7 @@ To implement a new mode, simply add it to getSupportedVideoModes() and modify po
 
 	TODO:
 FreenectIRStream
-acquire and test with original Kinect (within 2 weeks) - please report issues!
-improve K4W support in libfreenect
+improve K4W support in libfreenect - in progress
 polish and publish Gentoo ebuilds
 PROPER LOGGING!
 support more FREENECT_RESOLUTION and FREENECT_VIDEO

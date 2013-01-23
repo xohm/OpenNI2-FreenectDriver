@@ -48,7 +48,7 @@ DeviceBase* FreenectDriver::deviceOpen(const char* uri)
 			{
 				int id;
 				std::istringstream(iter->Key()->uri) >> id;
-				FreenectDeviceNI * device = &createDevice<FreenectDeviceNI>(id);
+				FreenectDeviceNI* device = &createDevice<FreenectDeviceNI>(id);
 				iter->Value() = device;
 				return device;
 			}
