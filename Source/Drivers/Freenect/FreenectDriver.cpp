@@ -18,7 +18,7 @@ FreenectDriver::FreenectDriver(OniDriverServices* pDriverServices) : DriverBase(
 OniStatus FreenectDriver::initialize(DeviceConnectedCallback connectedCallback, DeviceDisconnectedCallback disconnectedCallback, DeviceStateChangedCallback deviceStateChangedCallback, void* pCookie)
 {
 	DriverBase::initialize(connectedCallback, disconnectedCallback, deviceStateChangedCallback, pCookie);
-	for (unsigned int i = 1; i <= Freenect::deviceCount(); i++)
+	for (unsigned int i = 0; i < Freenect::deviceCount(); i++)
 	{
 		OniDeviceInfo* pInfo = XN_NEW(OniDeviceInfo);
 		std::ostringstream uri;
@@ -46,8 +46,10 @@ DeviceBase* FreenectDriver::deviceOpen(const char* uri)
 			}
 			else
 			{
-				int id;
-				std::istringstream(iter->Key()->uri) >> id;
+				unsigned int id;				
+				std::istringstream is(iter->Key()->uri);
+				is.seekg(strlen("freenect://"));
+				is >> id;
 				FreenectDeviceNI* device = &createDevice<FreenectDeviceNI>(id);
 				iter->Value() = device;
 				return device;
