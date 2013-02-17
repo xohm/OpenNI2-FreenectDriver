@@ -67,24 +67,6 @@ void FreenectColorStream::populateFrame(void* data, OniDriverFrame* pFrame) cons
 	}
 }
 
-// for StreamBase
-OniStatus FreenectColorStream::setProperty(int propertyId, const void* data, int dataSize)
-{
-	switch (propertyId)
-	{
-		default:
-			return FreenectVideoStream::setProperty(propertyId, data, dataSize);
-		case ONI_STREAM_PROPERTY_MIRRORING:		// OniBool
-			if (dataSize != sizeof(OniBool))
-			{
-				printf("Unexpected size: %d != %d\n", dataSize, sizeof(OniBool));
-				return ONI_STATUS_ERROR;
-			}
-			mirroring = *(static_cast<const OniBool*>(data));
-			return ONI_STATUS_OK;
-	}
-}
-
 
 /* color video modes reference
 

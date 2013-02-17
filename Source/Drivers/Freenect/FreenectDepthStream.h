@@ -1,6 +1,7 @@
 #ifndef _FREENECT_DEPTH_STREAM_H_
 #define _FREENECT_DEPTH_STREAM_H_
 
+#include <math.h> // for M_PI
 #include "FreenectVideoStream.h"
 #include "Driver/OniDriverAPI.h"
 #include "PS1080.h"
@@ -9,20 +10,24 @@
 #include "libfreenect.hpp"
 
 
-// these are from DepthKinectStream.cpp
-// please check that they are right
-static const unsigned long long GAIN_VAL = 42;
-static const unsigned long long CONST_SHIFT_VAL = 200;
-static const unsigned long long MAX_SHIFT_VAL = 2047;
-static const unsigned long long PARAM_COEFF_VAL = 4;
-static const unsigned long long SHIFT_SCALE_VAL = 10;
-static const unsigned long long ZERO_PLANE_DISTANCE_VAL = 120;
-static const double ZERO_PLANE_PIXEL_SIZE_VAL = 0.10520000010728836;
-static const double EMITTER_DCMOS_DISTANCE_VAL = 7.5;
-
-
 class FreenectDepthStream : public FreenectVideoStream
 {
+public:
+	// from NUI library and converted to radians - please check
+	static const float DIAGONAL_FOV = 70 * (M_PI / 180);
+	static const float HORIZONTAL_FOV = 58.5 * (M_PI / 180);
+	static const float VERTICAL_FOV = 45.6 * (M_PI / 180);
+	// from DepthKinectStream.cpp - please check
+	static const int MAX_VALUE = 10000;
+	static const unsigned long long GAIN_VAL = 42;
+	static const unsigned long long CONST_SHIFT_VAL = 200;
+	static const unsigned long long MAX_SHIFT_VAL = 2047;
+	static const unsigned long long PARAM_COEFF_VAL = 4;
+	static const unsigned long long SHIFT_SCALE_VAL = 10;
+	static const unsigned long long ZERO_PLANE_DISTANCE_VAL = 120;
+	static const double ZERO_PLANE_PIXEL_SIZE_VAL = 0.10520000010728836;
+	static const double EMITTER_DCMOS_DISTANCE_VAL = 7.5;
+
 protected:
 	typedef std::map< OniVideoMode, std::pair<freenect_depth_format, freenect_resolution> > FreenectDepthModeMap;
 	OniImageRegistrationMode image_registration_mode;
@@ -90,6 +95,31 @@ public:
 		{
 			default:
 				return FreenectVideoStream::getProperty(propertyId, data, pDataSize);
+
+			case ONI_STREAM_PROPERTY_HORIZONTAL_FOV:        // float (radians)
+				if (*pDataSize != sizeof(float))
+				{
+					printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(float));
+					return ONI_STATUS_ERROR;
+				}
+				*(static_cast<float*>(data)) = HORIZONTAL_FOV;
+				return ONI_STATUS_OK;
+			case ONI_STREAM_PROPERTY_VERTICAL_FOV:          // float (radians)
+				if (*pDataSize != sizeof(float))
+				{
+					printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(float));
+					return ONI_STATUS_ERROR;
+				}
+				*(static_cast<float*>(data)) = VERTICAL_FOV;
+				return ONI_STATUS_OK;
+			case ONI_STREAM_PROPERTY_MAX_VALUE:             // int
+				if (*pDataSize != sizeof(int))
+				{
+					printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(int));
+					return ONI_STATUS_ERROR;
+				}
+				*(static_cast<int*>(data)) = MAX_VALUE;
+				return ONI_STATUS_OK;
 
 			case XN_STREAM_PROPERTY_PIXEL_REGISTRATION:			// XnPixelRegistration (get only)
 			case XN_STREAM_PROPERTY_WHITE_BALANCE_ENABLED:	// unsigned long long
@@ -177,7 +207,22 @@ public:
 				return ONI_STATUS_OK;
 		}
 	}
-	virtual OniStatus setProperty(int propertyId, const void* data, int dataSize);
+	virtual OniStatus setProperty(int propertyId, const void* data, int dataSize)
+	{
+		switch (propertyId)
+		{
+			default:
+				return FreenectVideoStream::setProperty(propertyId, data, dataSize);
+			case ONI_STREAM_PROPERTY_MIRRORING:		// OniBool
+				if (dataSize != sizeof(OniBool))
+				{
+					printf("Unexpected size: %d != %d\n", dataSize, sizeof(OniBool));
+					return ONI_STATUS_ERROR;
+				}
+				mirroring = *(static_cast<const OniBool*>(data));
+				return ONI_STATUS_OK;
+		}
+	}
 };
 
 

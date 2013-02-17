@@ -45,31 +45,13 @@ void FreenectDepthStream::populateFrame(void* data, OniDriverFrame* pFrame) cons
 			// find corresponding mirrored pixel
 			unsigned int row = i / video_mode.resolutionX;
 			unsigned int col = video_mode.resolutionX - (i % video_mode.resolutionX);
-			unsigned int target = (row * video_mode.resolutionX + col);
+			unsigned int target = (row * video_mode.resolutionX) + col;
 			// copy it to this pixel
 			frame_data[i] = _data[target];
 		}
 	}
 	else
 		std::copy(_data, _data+pFrame->frame.dataSize, frame_data);
-}
-
-// for StreamBase
-OniStatus FreenectDepthStream::setProperty(int propertyId, const void* data, int dataSize)
-{
-	switch (propertyId)
-	{
-		default:
-			return FreenectVideoStream::setProperty(propertyId, data, dataSize);
-		case ONI_STREAM_PROPERTY_MIRRORING:		// OniBool
-			if (dataSize != sizeof(OniBool))
-			{
-				printf("Unexpected size: %d != %d\n", dataSize, sizeof(OniBool));
-				return ONI_STATUS_ERROR;
-			}
-			mirroring = *(static_cast<const OniBool*>(data));
-			return ONI_STATUS_OK;
-	}
 }
 
 
