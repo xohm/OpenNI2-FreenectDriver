@@ -16,7 +16,7 @@ FreenectDepthStream::FreenectDepthModeMap FreenectDepthStream::getSupportedVideo
 {
 	FreenectDepthModeMap modes;
 	//											pixelFormat, resolutionX, resolutionY, fps		freenect_video_format, freenect_resolution						
-	modes[makeOniVideoMode(ONI_PIXEL_FORMAT_DEPTH_1_MM, 640, 480, 30)] = { FREENECT_DEPTH_MM, FREENECT_RESOLUTION_MEDIUM };
+	modes[makeOniVideoMode(ONI_PIXEL_FORMAT_DEPTH_1_MM, 640, 480, 30)] = std::pair<freenect_depth_format, freenect_resolution>(FREENECT_DEPTH_MM, FREENECT_RESOLUTION_MEDIUM);
 	
 	
 	return modes;

@@ -13,7 +13,7 @@ FreenectVideoStream::FreenectVideoModeMap FreenectColorStream::getSupportedVideo
 {
 	FreenectVideoModeMap modes;
 	//										pixelFormat, resolutionX, resolutionY, fps		freenect_video_format, freenect_resolution											
-	modes[makeOniVideoMode(ONI_PIXEL_FORMAT_RGB888, 640, 480, 30)] = { FREENECT_VIDEO_RGB, FREENECT_RESOLUTION_MEDIUM };
+	modes[makeOniVideoMode(ONI_PIXEL_FORMAT_RGB888, 640, 480, 30)] = std::pair<freenect_video_format, freenect_resolution>(FREENECT_VIDEO_RGB, FREENECT_RESOLUTION_MEDIUM);
 
 	
 	return modes;	
