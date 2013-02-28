@@ -3,9 +3,11 @@ OpenNI2-FreenectDriver
 
 This branch contains FreenectDriver, which allows OpenNI2 to use libfreenect for Kinect support.
 Therefore, the following prerequisite is added on top of those for the regular build (found below):
-   libfreenect                  - https://github.com/OpenKinect/libfreenect OR from your distro's repository (Ubuntu users should install the freenect package)
+
+   libfreenect - https://github.com/OpenKinect/libfreenect OR from your distro's repository (Ubuntu users should install the freenect package)
    OR
    libfreenect with K4W support - https://github.com/zarvox/libfreenect/tree/k4w-wip
+When building libfreenect on OSX, specify a universal binary by prepending CMAKE_OSX_ARCHITECTURES=i386;x86_64 to the cmake command.
 
 For more information, see Source/Drivers/Freenect/README.
 
