@@ -4,6 +4,7 @@ BIN_DIR = ../../../Bin
 
 INC_DIRS = \
 	/usr/include/libfreenect \
+	/usr/local/include/libfreenect \
 	../../../Include \
 	../../../ThirdParty/PSCommon/XnLib/Include
 
@@ -13,6 +14,7 @@ SRC_FILES = \
 ifeq ("$(OSTYPE)","Darwin")
 	INC_DIRS += /opt/local/include
 	LIB_DIRS += /opt/local/lib
+	LIB_DIRS += /usr/local/lib
 	LDFLAGS += -framework CoreFoundation -framework IOKit
 endif
 
