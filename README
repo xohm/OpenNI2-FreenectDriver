@@ -1,9 +1,8 @@
 OpenNI2-FreenectDriver
 ----------------------
 
-Notice: If you want to experiment with Kinect, please try my latest project, freenect2: https://github.com/piedar/freenect2
+Notice: If you want to experiment with Kinect, please try my latest project, FreeNUI: https://github.com/piedar/FreeNUI
 In the near future, I will implement what this project does in that one (i.e. make it act as driver for OpenNI2); it'll make for a much cleaner design.
-Once that happens, this project will be deprecated in favor of freenect2.
 
 
 This branch contains FreenectDriver, which allows OpenNI2 to use libfreenect for Kinect support.
