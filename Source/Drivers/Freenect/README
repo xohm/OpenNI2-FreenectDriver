@@ -5,9 +5,6 @@ The Apache 2.0 license is available in the root of this project.
 
 	dependencies:
 libfreenect                  - https://github.com/OpenKinect/libfreenect
-OR
-libfreenect with K4W support - https://github.com/zarvox/libfreenect/tree/k4w-wip
-
 
 	structure:
 This module is modeled on TestDevice.cpp and Drivers/Kinect/
@@ -33,15 +30,9 @@ These two implementations offer a system to store and report supported video mod
 To implement a new mode, simply add it to getSupportedVideoModes() and modify populateFrame() if necessary.
 
 
-
 	TODO:
-FreenectIRStream
-improve K4W support in libfreenect - in progress
-polish and publish Gentoo ebuilds
+Gentoo ebuilds
 PROPER LOGGING!
-support more FREENECT_RESOLUTION and FREENECT_VIDEO
+support more FREENECT_RESOLUTION_, FREENECT_VIDEO_, and FREENECT_DEPTH_
 provide more OniVideoMode and OniStreamProperty
 implement interesting derived functions
-tilt motor support
-OSX support - please hack!
-audio stream

@@ -1,23 +1,21 @@
 OpenNI2-FreenectDriver
 ----------------------
 
-Notice: If you want to experiment with Kinect, please try my latest project, FreeNUI: https://github.com/piedar/FreeNUI
-In the near future, I will implement what this project does in that one (i.e. make it act as driver for OpenNI2); it'll make for a much cleaner design.
-
-
 This branch contains FreenectDriver, which allows OpenNI2 to use libfreenect for Kinect support.
-Therefore, the following prerequisite is added on top of those for the regular build (found below):
+Therefore, the following prerequisite is added to those for the regular build:
 
-   libfreenect - https://github.com/OpenKinect/libfreenect OR from your distro's repository (Ubuntu users should install the freenect package)
-   OR
-   libfreenect with K4W support - https://github.com/zarvox/libfreenect/tree/k4w-wip
+    libfreenect - https://github.com/OpenKinect/libfreenect OR from your distro's repository (Ubuntu users should install the freenect package)
+
 When building libfreenect on OSX, specify a universal binary by prepending CMAKE_OSX_ARCHITECTURES=i386;x86_64 to the cmake command.
 
 For more information, see Source/Drivers/Freenect/README.
 
-This repository's master branch is based on the OpenNI2 develop branch.
+
+Note: This repository's master branch is based on the OpenNI2 develop branch.
 FreenectDriver-original is based on the OpenNI2 master branch; it is kept only for reference.
 
+Notice: I am developing a new C++ wrapper for libfreenect based on what I've learned from OpenNI2.
+In the future, this project may be modified to use that wrapper.
 
 OpenNI
 ------
