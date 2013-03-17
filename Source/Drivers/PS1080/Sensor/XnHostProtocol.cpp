@@ -182,7 +182,7 @@ XnStatus XnHostProtocolInitFWParams(XnDevicePrivateData* pDevicePrivateData, XnU
 	pDevicePrivateData->FWInfo.bMirrorSupported = FALSE;
 	pDevicePrivateData->FWInfo.bGetPresetsSupported = FALSE;
 	pDevicePrivateData->FWInfo.bDeviceInfoSupported = FALSE;
-	pDevicePrivateData->FWInfo.bAutoImageAdjustmentsSupported = FALSE;
+	pDevicePrivateData->FWInfo.bImageAdjustmentsSupported = FALSE;
 
 	pDevicePrivateData->FWInfo.nOpcodeGetVersion = OPCODE_V017_GET_VERSION;
 	pDevicePrivateData->FWInfo.nOpcodeKeepAlive = OPCODE_V017_KEEP_ALIVE;
@@ -481,6 +481,12 @@ XnStatus XnHostProtocolInitFWParams(XnDevicePrivateData* pDevicePrivateData, XnU
 		pDevicePrivateData->FWInfo.bGetPresetsSupported = TRUE;
 	}
 
+	if (CompareVersion(nMajor, nMinor, nBuild, 5, 3, 31) >= 0 && CompareVersion(nMajor, nMinor, nBuild, 5, 4, 0) < 0)
+	{
+		// file system lock was also added in 5.3.31 (a maintenance release), but it's not in newer versions (5.4 and above)
+		pDevicePrivateData->FWInfo.bHasFilesystemLock = TRUE;
+	}
+
 	if (CompareVersion(nMajor, nMinor, nBuild, 5, 4, 0) >= 0)
 	{
 		pDevicePrivateData->FWInfo.nOpcodeGetSerialNumber = OPCODE_GET_SERIAL_NUMBER;
@@ -529,15 +535,19 @@ XnStatus XnHostProtocolInitFWParams(XnDevicePrivateData* pDevicePrivateData, XnU
 		pDevicePrivateData->FWInfo.bIncreasedFpsCropSupported = TRUE;
 	}
 
-	if (CompareVersion(nMajor, nMinor, nBuild, 5, 7, 10) >= 0)
-	{
-		pDevicePrivateData->FWInfo.bAutoImageAdjustmentsSupported = TRUE;
-	}
-
 	if (CompareVersion(nMajor, nMinor, nBuild, 5, 8, 0) >= 0)
 	{
 		pDevicePrivateData->FWInfo.nOpcodeSetLedState = OPCODE_SET_LED_STATE;
-		pDevicePrivateData->FWInfo.bHasFilesystemLock = TRUE;
+	}
+
+	if (CompareVersion(nMajor, nMinor, nBuild, 5, 8, 2) >= 0)
+	{
+		pDevicePrivateData->FWInfo.bHasFilesystemLock = TRUE;		
+	}
+
+	if (CompareVersion(nMajor, nMinor, nBuild, 5, 8, 9) >= 0)
+	{
+		pDevicePrivateData->FWInfo.bImageAdjustmentsSupported = TRUE;
 	}
 
 	if (CompareVersion(nMajor, nMinor, nBuild, 5, 9, 0) >= 0)
@@ -713,6 +723,12 @@ XnStatus ValidateReplyV26(const XnDevicePrivateData* pDevicePrivateData, XnUChar
 			return XN_STATUS_DEVICE_PROTOCOL_BAD_COMMAND_SIZE;
 		case NACK_NOT_READY:
 			return XN_STATUS_DEVICE_PROTOCOL_NOT_READY;
+		case NACK_OVERFLOW:
+			return XN_STATUS_DEVICE_PROTOCOL_OVERFLOW;
+		case NACK_OVERLAY_NOT_LOADED:
+			return XN_STATUS_DEVICE_PROTOCOL_OVERLAY_NOT_LOADED;
+		case NACK_FILE_SYSTEM_LOCKED:
+			return XN_STATUS_DEVICE_PROTOCOL_FILE_SYSTEM_LOCKED;
 		case NACK_UNKNOWN_ERROR:
 		default:
 			return XN_STATUS_DEVICE_PROTOCOL_UNKNOWN_ERROR;
@@ -1032,7 +1048,7 @@ XnStatus XnHostProtocolGetVersion(const XnDevicePrivateData* pDevicePrivateData,
 	Version.SDK.nMaintenance = XN_PS_MAINTENANCE_VERSION;
 	Version.SDK.nBuild = XN_PS_BUILD_VERSION;
 
-	// find out hardware version (for pre-RD boards)
+	// find out hardware version
 	if (Version.nFPGA == XN_FPGA_VER_FPDB_26)
 	{
 		Version.HWVer = XN_SENSOR_HW_VER_FPDB_10;
@@ -1095,8 +1111,8 @@ XnStatus XnHostProtocolGetVersion(const XnDevicePrivateData* pDevicePrivateData,
 	// find out sensor version
 	Version.SensorVer = XN_SENSOR_VER_UNKNOWN;
 
+	// in some firmwares, the HWVer was incorrect. Override according to firmware number
 	Version.FWVer = GetFWVersion(Version.nMajor, Version.nMinor, Version.nBuild);
-
 	if (Version.FWVer == XN_SENSOR_FW_VER_5_0)
 	{
 		Version.HWVer = XN_SENSOR_HW_VER_RD_5;
@@ -1111,7 +1127,15 @@ XnStatus XnHostProtocolGetVersion(const XnDevicePrivateData* pDevicePrivateData,
 	}
 	else if (Version.FWVer == XN_SENSOR_FW_VER_5_3)
 	{
-		Version.HWVer = XN_SENSOR_HW_VER_RD1081;
+		if (Version.nBuild < 28)
+		{
+			Version.HWVer = XN_SENSOR_HW_VER_RD1081;
+		}
+		else if (Version.nBuild == 28)
+		{
+			Version.HWVer = XN_SENSOR_HW_VER_RD1082;
+		}
+		// 5.3.29 and up returns valid HW versions, so no need to override anything
 	}
 	else if (Version.FWVer == XN_SENSOR_FW_VER_5_4)
 	{

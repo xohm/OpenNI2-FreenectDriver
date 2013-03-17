@@ -5,10 +5,10 @@
   It's not enough to just include newer files.
   -->
   <?define MajorVersion=2?>
-  <?define MinorVersion=1?>
+  <?define MinorVersion=2?>
   <?define MaintenanceVersion=0?>
   <!-- BuildVersion is NOT used by WiX in the upgrade procedure -->
-  <?define BuildVersion=4?>
+  <?define BuildVersion=3?>
   <!-- Full version number to display -->
   <?define VersionNumber="$(var.MajorVersion).$(var.MinorVersion).$(var.MaintenanceVersion).$(var.BuildVersion)"?>
 
@@ -16,7 +16,7 @@
   Path to the resources directory. resources don't really need to be included
   in the project structure but I like to include them for for clarity 
   -->
-  <?define ResourcesDir="$(var.SolutionDir)\Redist\Install\Resources" ?>
+  <?define ResourcesDir="$(var.SolutionDir)\Packaging\Install\Resources" ?>
 
   <?define MinOpenNIVersion="1.0.0"?>
 
