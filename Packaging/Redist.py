@@ -376,6 +376,11 @@ class OSWin(OS):
 class OSLinux(OS):
     def __init__(self):
         self.supportsBoth = False
+        
+    def getExportedDrivers(self):
+        drivers = OS.getExportedDrivers(self)
+        drivers.append('FreenectDriver')
+        return drivers
 
     def copyOpenNI(self, where):
         OS.copyOpenNI(self, where)
