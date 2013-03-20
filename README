@@ -1,6 +1,9 @@
 OpenNI2-FreenectDriver
 ----------------------
 
+NEW: There is now a Build Guide on the wiki:
+https://github.com/piedar/OpenNI2-FreenectDriver/wiki/Build%20Guide
+
 This branch contains FreenectDriver, which allows OpenNI2 to use libfreenect for Kinect support.
 Therefore, the following prerequisite is added to those for the regular build:
 
