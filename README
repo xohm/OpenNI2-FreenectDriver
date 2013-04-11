@@ -1,11 +1,8 @@
 OpenNI2-FreenectDriver
 ----------------------
 
-NOTICE: On Thursday, 11 April, 2013, this repository's master branch will undergo a major structural change.
-Instead of containing a complete copy of OpenNI2 with an extra driver, it will contain only the driver and some necessary OpenNI2 headers.
-This means the build process will change - you will need to separately build OpenNI2 from https://github.com/OpenNI/OpenNI2 then build this driver.
-The README and Build Guide will be updated for the change.
-The current master branch will remain intact in a separate branch.
+This repository has been replaced with https://github.com/piedar/OpenNI2-FreenectDriver
+It is highly recommended that you use that repository instead.
 
 
 NEW: There is now a Build Guide on the wiki:
