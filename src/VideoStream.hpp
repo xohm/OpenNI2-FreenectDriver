@@ -58,11 +58,11 @@ namespace FreenectDriver {
       mirroring(false) { }
     //~VideoStream() { stop();  }
   
-    virtual void buildFrame(void* data, uint32_t timestamp) {
+    void buildFrame(void* data, uint32_t timestamp) {
       if (!running)
         return;     
 
-      OniFrame* frame = new OniFrame;
+      OniFrame* frame = getServices().acquireFrame();
       frame->frameIndex = frame_id++;
       frame->timestamp = timestamp;
       frame->videoMode = video_mode;
@@ -71,6 +71,7 @@ namespace FreenectDriver {
       
       populateFrame(data, frame);
       raiseNewFrame(frame);
+      getServices().releaseFrame(frame);
     }
   
     // from StreamBase

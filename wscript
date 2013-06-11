@@ -30,7 +30,7 @@ def build(bld):
 		name = APPNAME,
 		vnum = VERSION,
 		install_path = None,
-		includes = ['extern/OpenNI-Linux-x64-2.2.0/Include', '/usr/include/libfreenect'],
+		includes = ['extern/OpenNI-Linux-x64-2.2/Include', '/usr/include/libfreenect'],
 		source = bld.path.ant_glob('src/*.cpp'),
 		
 		use = 'freenect',

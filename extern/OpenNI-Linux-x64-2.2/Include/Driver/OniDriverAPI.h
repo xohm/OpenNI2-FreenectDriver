@@ -177,7 +177,7 @@ public:
 		return ONI_STATUS_OK;
 	}
 
-	virtual DeviceBase* deviceOpen(const char* uri) = 0;
+	virtual DeviceBase* deviceOpen(const char* uri, const char* mode) = 0;
 	virtual void deviceClose(DeviceBase* pDevice) = 0;
 
 	virtual void shutdown() = 0;
@@ -211,14 +211,12 @@ oni::driver::DriverBase* g_pDriver = NULL;																					\
 																															\
 /* As Driver */																												\
 ONI_C_API_EXPORT void oniDriverCreate(OniDriverServices* driverServices) {													\
-	/*g_pDriver = XN_NEW(DriverClass, driverServices);*/																		\
-	g_pDriver = new DriverClass(driverServices); \
+	g_pDriver = XN_NEW(DriverClass, driverServices);																		\
 }																															\
 ONI_C_API_EXPORT void oniDriverDestroy()																					\
 {																															\
 	g_pDriver->shutdown();																									\
-	/*XN_DELETE(g_pDriver); g_pDriver = NULL;*/																					\
-	delete g_pDriver; g_pDriver = NULL; \
+	XN_DELETE(g_pDriver); g_pDriver = NULL;																					\
 }																															\
 ONI_C_API_EXPORT OniStatus oniDriverInitialize(oni::driver::DeviceConnectedCallback deviceConnectedCallback,				\
 										oni::driver::DeviceDisconnectedCallback deviceDisconnectedCallback,					\
@@ -234,9 +232,9 @@ ONI_C_API_EXPORT OniStatus oniDriverTryDevice(const char* uri)																\
 }																															\
 																															\
 /* As Device */																												\
-ONI_C_API_EXPORT oni::driver::DeviceBase* oniDriverDeviceOpen(const char* uri)												\
+ONI_C_API_EXPORT oni::driver::DeviceBase* oniDriverDeviceOpen(const char* uri, const char* mode)							\
 {																															\
-	return g_pDriver->deviceOpen(uri);																						\
+	return g_pDriver->deviceOpen(uri, mode);																				\
 }																															\
 ONI_C_API_EXPORT void oniDriverDeviceClose(oni::driver::DeviceBase* pDevice)												\
 {																															\

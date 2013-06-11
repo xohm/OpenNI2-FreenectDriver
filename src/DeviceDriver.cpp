@@ -67,12 +67,12 @@ namespace FreenectDriver {
           return NULL;
         case ONI_SENSOR_COLOR:
           Freenect::FreenectDevice::startVideo();
-          if (color == NULL)
+          if (! color)
             color = new ColorStream(this);
           return color;
         case ONI_SENSOR_DEPTH:
           Freenect::FreenectDevice::startDepth();
-          if (depth == NULL)
+          if (! depth)
             depth = new DepthStream(this);
           return depth;
         // todo: IR
@@ -207,7 +207,7 @@ namespace FreenectDriver {
       return ONI_STATUS_OK;
     }
     
-    oni::driver::DeviceBase* deviceOpen(const char* uri) {
+    oni::driver::DeviceBase* deviceOpen(const char* uri, const char* mode = NULL) {
       for (std::map<OniDeviceInfo, oni::driver::DeviceBase*>::iterator iter = devices.begin(); iter != devices.end(); ++iter) {
         if (strcmp(iter->first.uri, uri) == 0) { // found
           if (iter->second) // already open
@@ -266,4 +266,9 @@ namespace FreenectDriver {
 }
 
 
+// macros defined in XnLib (not included) - workaround
+#define XN_NEW(type, arg...) new type(arg)
+#define XN_DELETE(p) delete(p)
 ONI_EXPORT_DRIVER(FreenectDriver::Driver);
+#undef XN_NEW
+#undef XN_DELETE
