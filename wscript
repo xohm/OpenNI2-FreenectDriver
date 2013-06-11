@@ -5,7 +5,7 @@ import platform
 
 
 APPNAME = 'FreenectDriver'
-VERSION = '1.0'
+VERSION = '1.1'
 
 top = '.'
 out = 'build'
