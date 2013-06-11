@@ -213,8 +213,10 @@ namespace Freenect {
 		}
 		// Do not call directly, thread runs here
 		void operator()() {
+			// blocking on freenect_process_events causes hang on shutdown
+			static timeval noblock = {0, 0};
 			while(!m_stop) {
-				int res = freenect_process_events(m_ctx);
+				int res = freenect_process_events_timeout(m_ctx, &noblock);
 				if (res < 0)
 				{
 					// libusb signals an error has occurred
