@@ -5,7 +5,7 @@ FreenectDriver is a bridge to libfreenect implemented as an OpenNI2 driver. It a
 
 Dependencies
 ------------
-* g++
+* g++ (Linux) or clang++ (OSX)
 * python
 * libfreenect
 
@@ -15,7 +15,8 @@ Build
 
 Install
 -------
-Copy build/libFreenectDriver.so to OpenNI2/Drivers/ in your OpenNI2 redist directory.
+1. Download and unpack [OpenNI](http://www.openni.org/openni-sdk/) 2.2 or higher.
+2. Copy build/libFreenectDriver.so (Linux) or build/libFreenectDriver.dylib (OSX) to OpenNI2/Drivers/ in your OpenNI2 redist directory.
 
 __________________________________________________
 

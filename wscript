@@ -20,9 +20,8 @@ def configure(conf):
 	conf.load('compiler_cxx')
 	conf.check_cxx(lib='freenect', uselib_store='freenect')
 	
-	#if platform.system() == 'Darwin':
-		#conf.env.CXX = ['clang++'] # remove once OSX gets >= gcc-4.6
-		#conf.env.FRAMEWORKPATH += ['/usr/local/lib']
+	if platform.system() == 'Darwin':
+		conf.env.CXX = ['clang++'] # can remove if OSX has >= gcc-4.6
 
 def build(bld):
 	bld.shlib(
@@ -30,7 +29,7 @@ def build(bld):
 		name = APPNAME,
 		vnum = VERSION,
 		install_path = None,
-		includes = ['extern/OpenNI-Linux-x64-2.2/Include', '/usr/include/libfreenect'],
+		includes = ['extern/OpenNI-Linux-x64-2.2/Include', '/usr/include/libfreenect', '/usr/local/include/libfreenect'],
 		source = bld.path.ant_glob('src/*.cpp'),
 		
 		use = 'freenect',
