@@ -51,21 +51,13 @@ void DepthStream::populateFrame(void* data, OniFrame* frame) const {
 	frame->stride = video_mode.resolutionX*sizeof(uint16_t);
 	frame->cropOriginX = frame->cropOriginY = 0;
 	frame->croppingEnabled = FALSE;	
-	frame->dataSize = device->getDepthBufferSize();
-	//frame->data = xnOSMallocAligned(sizeof(uint16_t)*frame->dataSize, XN_DEFAULT_MEM_ALIGN);
-	frame->data = malloc(sizeof(uint16_t) * frame->dataSize);
-	if (frame->data == NULL)
-	{
-		//XN_ASSERT(FALSE);
-		return;
-	}
 	
 	// copy stream buffer from freenect
 	uint16_t* data_ptr = static_cast<uint16_t*>(data);
 	uint16_t* frame_data = static_cast<uint16_t*>(frame->data);
 	if (mirroring)
 	{
-		for (unsigned int i = 0; i < frame->dataSize; i++)
+		for (unsigned int i = 0; i < frame->dataSize / 2; i++)
 		{
 			// find corresponding mirrored pixel
 			unsigned int row = i / video_mode.resolutionX;
@@ -76,7 +68,7 @@ void DepthStream::populateFrame(void* data, OniFrame* frame) const {
 		}
 	}
 	else
-		std::copy(data_ptr, data_ptr+frame->dataSize, frame_data);
+		std::copy(data_ptr, data_ptr+frame->dataSize / 2, frame_data);
 }
 
 

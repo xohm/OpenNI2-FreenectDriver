@@ -47,13 +47,7 @@ void ColorStream::populateFrame(void* data, OniFrame* frame) const {
   frame->stride = video_mode.resolutionX*3;
   frame->cropOriginX = frame->cropOriginY = 0;
   frame->croppingEnabled = FALSE;
-  frame->dataSize = device->getVideoBufferSize();
-  //frame->data = xnOSMallocAligned(frame->dataSize, XN_DEFAULT_MEM_ALIGN);
-  frame->data = malloc(frame->dataSize);
-  if (frame->data == NULL) {
-    //XN_ASSERT(FALSE);
-    return;
-  }
+
   // copy stream buffer from freenect
   switch (video_mode.pixelFormat) {
     default:
