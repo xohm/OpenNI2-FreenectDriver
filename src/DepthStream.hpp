@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm> // for transform()
-#include <math.h> // for M_PI
+#include <cmath> // for M_PI
 #include "libfreenect.hpp"
 #include "Driver/OniDriverAPI.h"
 #include "PS1080.h"
@@ -158,7 +158,7 @@ namespace FreenectDriver {
           return ONI_STATUS_OK;
         case XN_STREAM_PROPERTY_D2S_TABLE:              // unsigned short[]
           *pDataSize = sizeof(D2S);
-          std::copy(D2S, D2S+sizeof(D2S), static_cast<unsigned short*>(data));
+          std::copy(D2S, D2S+sizeof(D2S), static_cast<OniDepthPixel*>(data)); // docs say unsigned short*, but segfault says otherwise
           return ONI_STATUS_OK;
       }
     }
