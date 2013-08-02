@@ -7,6 +7,38 @@
 
 #define SIZE(array) sizeof array / sizeof 0[array]
 
+
+class Mutex {
+public:
+    Mutex() {
+        pthread_mutex_init( &m_mutex, NULL );
+    }
+    void lock() {
+        pthread_mutex_lock( &m_mutex );
+    }
+    void unlock() {
+        pthread_mutex_unlock( &m_mutex );
+    }
+
+    class ScopedLock
+    {
+        Mutex & _mutex;
+    public:
+        ScopedLock(Mutex & mutex)
+            : _mutex(mutex)
+        {
+            _mutex.lock();
+        }
+        ~ScopedLock()
+        {
+            _mutex.unlock();
+        }
+    };
+private:
+    pthread_mutex_t m_mutex;
+};
+
+
 struct RetrieveKey {
   template <typename T>
   typename T::first_type operator()(T pair) const {
@@ -50,6 +82,8 @@ namespace FreenectDriver {
     bool running; // acquireFrame() does something iff true
     OniVideoMode video_mode;
     bool mirroring;
+
+    Mutex   _mutex;
   
   public:
     VideoStream(Freenect::FreenectDevice* device) :
@@ -61,6 +95,7 @@ namespace FreenectDriver {
     void buildFrame(void* data, uint32_t timestamp) {
       if (!running)
         return;     
+      Mutex::ScopedLock lock(_mutex);
 
       OniFrame* frame = getServices().acquireFrame();
       frame->frameIndex = frame_id++;
@@ -116,7 +151,7 @@ namespace FreenectDriver {
             printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(OniBool));
             return ONI_STATUS_ERROR;
           }
-          *(static_cast<OniBool*>(data)) = mirroring;						
+          *(static_cast<OniBool*>(data)) = mirroring;
           return ONI_STATUS_OK;
       }
     }

@@ -71,7 +71,8 @@ void ColorStream::populateFrame(void* data, OniFrame* frame) const {
         }
       }
       else
-        std::copy(data_ptr, data_ptr+frame->dataSize, frame_data);
+          memcpy(frame_data,data_ptr,frame->dataSize);
+        //std::copy(data_ptr, data_ptr+frame->dataSize, frame_data);
 
       return;
   }

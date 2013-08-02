@@ -5,7 +5,8 @@ using namespace FreenectDriver;
 
 DepthStream::DepthStream(Freenect::FreenectDevice* pDevice) : VideoStream(pDevice) {
 	video_mode = makeOniVideoMode(ONI_PIXEL_FORMAT_DEPTH_1_MM, 640, 480, 30);
-	image_registration_mode = ONI_IMAGE_REGISTRATION_OFF;
+    //image_registration_mode = ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR;
+    image_registration_mode = ONI_IMAGE_REGISTRATION_OFF;
 	setVideoMode(video_mode);
 }
 
@@ -46,6 +47,12 @@ OniStatus DepthStream::setVideoMode(OniVideoMode requested_mode) {
 	return ONI_STATUS_OK;
 }
 
+// Discard the depth value equal or greater than the max value.
+inline unsigned short filterReliableDepthValue(unsigned short value)
+{
+    return value < DepthStream::MAX_VALUE ? value : 0;
+}
+
 void DepthStream::populateFrame(void* data, OniFrame* frame) const {	
 	frame->sensorType = sensor_type;
 	frame->stride = video_mode.resolutionX*sizeof(uint16_t);
@@ -64,11 +71,17 @@ void DepthStream::populateFrame(void* data, OniFrame* frame) const {
 			unsigned int col = video_mode.resolutionX - (i % video_mode.resolutionX);
 			unsigned int target = (row * video_mode.resolutionX) + col;
 			// copy it to this pixel
-			frame_data[i] = data_ptr[target];
+            frame_data[i] = filterReliableDepthValue(data_ptr[target]);
 		}
 	}
 	else
-		std::copy(data_ptr, data_ptr+frame->dataSize / 2, frame_data);
+    {
+        for (unsigned int i = 0; i < frame->dataSize / 2; i++)
+            frame_data[i] = filterReliableDepthValue(data_ptr[i]);
+
+        //mempcpy(frame_data,data_ptr,frame->dataSize);
+        //std::copy(data_ptr, data_ptr+frame->dataSize / 2, frame_data);
+    }
 }
 
 

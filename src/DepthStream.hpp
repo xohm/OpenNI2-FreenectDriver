@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm> // for transform()
-#include <cmath> // for M_PI
+#include <math.h> // for M_PI
 #include "libfreenect.hpp"
 #include "Driver/OniDriverAPI.h"
 #include "PS1080.h"
@@ -9,18 +9,26 @@
 #include "S2D.h"
 #include "D2S.h"
 
+#include "S2D_exp.h"
+#include "D2S_exp.h"
+
+#include <iostream>
 
 namespace FreenectDriver {
   class DepthStream : public VideoStream {
   public:
     // from NUI library and converted to radians - please check
-    static const float DIAGONAL_FOV = 70 * (M_PI / 180);
-    static const float HORIZONTAL_FOV = 58.5 * (M_PI / 180);
-    static const float VERTICAL_FOV = 45.6 * (M_PI / 180);
+      static const float COLOR_DIAGONAL_FOV = 73.9 * (M_PI / 180);
+      static const float COLOR_HORIZONTAL_FOV = 62.0 * (M_PI / 180);
+      static const float COLOR_VERTICAL_FOV = 48.0 * (M_PI / 180);
+
+      static const float DIAGONAL_FOV = 70 * (M_PI / 180);
+      static const float HORIZONTAL_FOV = 58.5 * (M_PI / 180);
+      static const float VERTICAL_FOV = 45.6 * (M_PI / 180);
     // from DepthKinectStream.cpp - please check
     static const int MAX_VALUE = 10000;
     static const unsigned long long GAIN_VAL = 42;
-    static const unsigned long long CONST_SHIFT_VAL = 200;
+    static const unsigned long long CONST_SHIFT_VAL = 200; //<< should be 800  https://groups.google.com/forum/#!msg/openkinect/tc45lqPLU2Y/GMglTFh9ecAJ
     static const unsigned long long MAX_SHIFT_VAL = 2047;
     static const unsigned long long PARAM_COEFF_VAL = 4;
     static const unsigned long long SHIFT_SCALE_VAL = 10;
@@ -34,7 +42,7 @@ namespace FreenectDriver {
     OniImageRegistrationMode image_registration_mode;
 
     static FreenectDepthModeMap getSupportedVideoModes();
-    OniStatus setVideoMode(OniVideoMode requested_mode);
+    virtual OniStatus setVideoMode(OniVideoMode requested_mode);
     void populateFrame(void* data, OniFrame* frame) const;
 
   public:
@@ -53,13 +61,14 @@ namespace FreenectDriver {
       if (!isImageRegistrationModeSupported(mode))
         return ONI_STATUS_NOT_SUPPORTED;
       image_registration_mode = mode;
+
+      setVideoMode(video_mode);
       return ONI_STATUS_OK;
     }
     
     // from StreamBase
     OniBool isImageRegistrationModeSupported(OniImageRegistrationMode mode) { return (mode == ONI_IMAGE_REGISTRATION_OFF || mode == ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR); }
-    
-    OniStatus getProperty(int propertyId, void* data, int* pDataSize){
+        OniStatus getProperty(int propertyId, void* data, int* pDataSize){
       switch (propertyId) {
         default:
           return VideoStream::getProperty(propertyId, data, pDataSize);
@@ -69,15 +78,20 @@ namespace FreenectDriver {
             printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(float));
             return ONI_STATUS_ERROR;
           }
+
+          //*(static_cast<float*>(data)) = COLOR_HORIZONTAL_FOV;
           *(static_cast<float*>(data)) = HORIZONTAL_FOV;
           return ONI_STATUS_OK;
+
         case ONI_STREAM_PROPERTY_VERTICAL_FOV:          // float (radians)
           if (*pDataSize != sizeof(float)) {
             printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(float));
             return ONI_STATUS_ERROR;
           }
+          //*(static_cast<float*>(data)) = COLOR_VERTICAL_FOV;
           *(static_cast<float*>(data)) = VERTICAL_FOV;
           return ONI_STATUS_OK;
+
         case ONI_STREAM_PROPERTY_MAX_VALUE:             // int
           if (*pDataSize != sizeof(int)) {
             printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(int));
@@ -103,6 +117,7 @@ namespace FreenectDriver {
           }
           *(static_cast<unsigned long long*>(data)) = GAIN_VAL;
           return ONI_STATUS_OK;
+
         case XN_STREAM_PROPERTY_CONST_SHIFT:            // unsigned long long
           if (*pDataSize != sizeof(unsigned long long)) {
             printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(unsigned long long));
@@ -110,6 +125,7 @@ namespace FreenectDriver {
           }
           *(static_cast<unsigned long long*>(data)) = CONST_SHIFT_VAL;
           return ONI_STATUS_OK;
+
         case XN_STREAM_PROPERTY_MAX_SHIFT:              // unsigned long long
           if (*pDataSize != sizeof(unsigned long long)) {
             printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(unsigned long long));
@@ -117,6 +133,7 @@ namespace FreenectDriver {
           }
           *(static_cast<unsigned long long*>(data)) = MAX_SHIFT_VAL;
           return ONI_STATUS_OK;
+
         case XN_STREAM_PROPERTY_PARAM_COEFF:            // unsigned long long
           if (*pDataSize != sizeof(unsigned long long)) {
             printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(unsigned long long));
@@ -124,6 +141,7 @@ namespace FreenectDriver {
           }
           *(static_cast<unsigned long long*>(data)) = PARAM_COEFF_VAL;
           return ONI_STATUS_OK;
+
         case XN_STREAM_PROPERTY_SHIFT_SCALE:            // unsigned long long
           if (*pDataSize != sizeof(unsigned long long)) {
             printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(unsigned long long));
@@ -131,6 +149,7 @@ namespace FreenectDriver {
           }
           *(static_cast<unsigned long long*>(data)) = SHIFT_SCALE_VAL;
           return ONI_STATUS_OK;
+
         case XN_STREAM_PROPERTY_ZERO_PLANE_DISTANCE:    // unsigned long long
           if (*pDataSize != sizeof(unsigned long long)) {
             printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(unsigned long long));
@@ -138,6 +157,7 @@ namespace FreenectDriver {
           }
           *(static_cast<unsigned long long*>(data)) = ZERO_PLANE_DISTANCE_VAL;
           return ONI_STATUS_OK;
+
         case XN_STREAM_PROPERTY_ZERO_PLANE_PIXEL_SIZE:  // double
           if (*pDataSize != sizeof(double)) {
             printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(double));
@@ -152,13 +172,37 @@ namespace FreenectDriver {
           }
           *(static_cast<double*>(data)) = EMITTER_DCMOS_DISTANCE_VAL;
           return ONI_STATUS_OK;
+
         case XN_STREAM_PROPERTY_S2D_TABLE:              // OniDepthPixel[]
+/*
           *pDataSize = sizeof(S2D);
-          std::copy(S2D, S2D+sizeof(S2D), static_cast<OniDepthPixel*>(data));
+          //std::copy(&S2D[0], &S2D[*pDataSize / sizeof(uint16_t)], static_cast<OniDepthPixel*>(data));
+          memcpy(data,S2D,*pDataSize);
+*/
+          /* // works with skel,no hands
+          *pDataSize = S2D_Size;
+          memcpy(data,S2D_Blob,S2D_Size);
+          */
+
+          *pDataSize = sizeof(S2D_exp);
+          memcpy(data,S2D_exp,*pDataSize);
+
           return ONI_STATUS_OK;
+
         case XN_STREAM_PROPERTY_D2S_TABLE:              // unsigned short[]
+/*
           *pDataSize = sizeof(D2S);
-          std::copy(D2S, D2S+sizeof(D2S), static_cast<OniDepthPixel*>(data)); // docs say unsigned short*, but segfault says otherwise
+          //std::copy(&D2S[0], &D2S[*pDataSize / sizeof(uint8_t)], static_cast<unsigned short*>(data));
+          memcpy(data,D2S,*pDataSize);
+*/
+          /* // works with skel,no hands
+          *pDataSize = D2S_Size;
+          memcpy(data,D2S_Blob,D2S_Size);
+*/
+
+          *pDataSize = sizeof(D2S_exp);
+          memcpy(data,D2S_exp,*pDataSize);
+
           return ONI_STATUS_OK;
       }
     }
