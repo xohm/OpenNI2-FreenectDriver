@@ -80,8 +80,9 @@ namespace FreenectDriver {
     static const OniSensorType sensor_type;
     Freenect::FreenectDevice* device;
     bool running; // acquireFrame() does something iff true
-    OniVideoMode video_mode;
-    bool mirroring;
+    OniVideoMode    video_mode;
+    OniCropping     cropping;
+    bool            mirroring;
 
     Mutex   _mutex;
   
@@ -89,7 +90,11 @@ namespace FreenectDriver {
     VideoStream(Freenect::FreenectDevice* device) :
       device(device),
       frame_id(1),
-      mirroring(false) { }
+      mirroring(false)
+    {
+        cropping.enabled = false;
+
+    }
     //~VideoStream() { stop();  }
   
     void buildFrame(void* data, uint32_t timestamp) {
@@ -100,6 +105,7 @@ namespace FreenectDriver {
       OniFrame* frame = getServices().acquireFrame();
       frame->frameIndex = frame_id++;
       frame->timestamp = timestamp;
+      frame->timestamp = 0;
       frame->videoMode = video_mode;
       frame->width = video_mode.resolutionX;
       frame->height = video_mode.resolutionY;
@@ -123,7 +129,6 @@ namespace FreenectDriver {
     virtual OniStatus getProperty(int propertyId, void* data, int* pDataSize) {
       switch (propertyId) {
         default:
-        case ONI_STREAM_PROPERTY_CROPPING:            // OniCropping*
         case ONI_STREAM_PROPERTY_HORIZONTAL_FOV:      // float: radians
         case ONI_STREAM_PROPERTY_VERTICAL_FOV:        // float: radians
         case ONI_STREAM_PROPERTY_MAX_VALUE:           // int
@@ -135,9 +140,18 @@ namespace FreenectDriver {
         case ONI_STREAM_PROPERTY_AUTO_EXPOSURE:       // OniBool
         // xn
         case XN_STREAM_PROPERTY_INPUT_FORMAT:         // unsigned long long
-        case XN_STREAM_PROPERTY_CROPPING_MODE:        // XnCroppingMode
+        case XN_STREAM_PROPERTY_CROPPING_MODE:         // unsigned long long
           return ONI_STATUS_NOT_SUPPORTED;
-          
+
+        case ONI_STREAM_PROPERTY_CROPPING:
+          if (*pDataSize != sizeof(OniCropping))
+          {
+              printf("Unexpected size: %d != %d\n", *pDataSize, sizeof(OniCropping));
+              return ONI_STATUS_ERROR;
+          }
+          else
+              return GetCropping((OniCropping*)data);
+
         case ONI_STREAM_PROPERTY_VIDEO_MODE:          // OniVideoMode*
           if (*pDataSize != sizeof(OniVideoMode)) {
             printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(OniVideoMode));
@@ -158,7 +172,6 @@ namespace FreenectDriver {
     virtual OniStatus setProperty(int propertyId, const void* data, int dataSize) {
       switch (propertyId) {
         default:
-        case ONI_STREAM_PROPERTY_CROPPING:            // OniCropping*
         case ONI_STREAM_PROPERTY_HORIZONTAL_FOV:      // float: radians
         case ONI_STREAM_PROPERTY_VERTICAL_FOV:        // float: radians
         case ONI_STREAM_PROPERTY_MAX_VALUE:           // int
@@ -171,9 +184,17 @@ namespace FreenectDriver {
         case ONI_STREAM_PROPERTY_AUTO_EXPOSURE:       // OniBool
         // xn
         case XN_STREAM_PROPERTY_INPUT_FORMAT:         // unsigned long long
-        case XN_STREAM_PROPERTY_CROPPING_MODE:        // XnCroppingMode
+        case XN_STREAM_PROPERTY_CROPPING_MODE:         // unsigned long long
           return ONI_STATUS_NOT_SUPPORTED;
-          
+
+        case ONI_STREAM_PROPERTY_CROPPING:        // XnCroppingMode
+          if (dataSize != sizeof(OniCropping))
+          {
+              printf("Unexpected size: %d != %d\n", dataSize, sizeof(OniCropping));
+              return ONI_STATUS_ERROR;
+          }
+          return SetCropping((OniCropping*)data);
+
         case ONI_STREAM_PROPERTY_VIDEO_MODE:          // OniVideoMode*
           if (dataSize != sizeof(OniVideoMode)) {
             printf("Unexpected size: %d != %lu\n", dataSize, sizeof(OniVideoMode));
@@ -186,7 +207,18 @@ namespace FreenectDriver {
       }
     }
     
-  
+    OniStatus SetCropping(OniCropping* vCropping)
+    {
+        cropping = *vCropping;
+        return ONI_STATUS_OK;
+    }
+
+    OniStatus GetCropping(OniCropping* vCropping)
+    {
+        *vCropping = cropping;
+        return ONI_STATUS_OK;
+    }
+
     /* todo : from StreamBase
     virtual OniStatus convertDepthToColorCoordinates(StreamBase* colorStream, int depthX, int depthY, OniDepthPixel depthZ, int* pColorX, int* pColorY) { return ONI_STATUS_NOT_SUPPORTED; }  
     */

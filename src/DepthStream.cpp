@@ -1,4 +1,14 @@
 #include "DepthStream.hpp"
+/*
+#include "S2D.h"
+#include "D2S.h"
+
+#include "S2D_exp.h"
+#include "D2S_exp.h"
+*/
+#include "S2D.h.h"
+#include "D2S.h.h"
+#include "DepthSensorCalibBlob.h"
 
 using namespace FreenectDriver;
 
@@ -53,6 +63,247 @@ inline unsigned short filterReliableDepthValue(unsigned short value)
     return value < DepthStream::MAX_VALUE ? value : 0;
 }
 
+
+OniStatus DepthStream::getProperty(int propertyId, void* data, int* pDataSize)
+{
+
+    switch (propertyId)
+    {
+    default:
+    {
+
+        OniStatus ret = VideoStream::getProperty(propertyId, data, pDataSize);
+        if(ret == ONI_STATUS_OK)
+            return ONI_STATUS_OK;
+
+        if(pDataSize != NULL)
+            std::cout << "--> default:" << propertyId << "  size:" << *pDataSize << std::endl;
+        else
+            std::cout << "--> default:" << propertyId << "  size: null" << std::endl;
+        return ONI_STATUS_NOT_SUPPORTED;
+    }
+    case ONI_STREAM_PROPERTY_HORIZONTAL_FOV:        // float (radians)
+        if (*pDataSize != sizeof(float)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(float));
+            return ONI_STATUS_ERROR;
+        }
+
+        //*(static_cast<float*>(data)) = COLOR_HORIZONTAL_FOV;
+        *(static_cast<float*>(data)) = HORIZONTAL_FOV;
+        std::cout << "--> ONI_STREAM_PROPERTY_HORIZONTAL_FOV" << std::endl;
+        return ONI_STATUS_OK;
+
+    case ONI_STREAM_PROPERTY_VERTICAL_FOV:          // float (radians)
+        if (*pDataSize != sizeof(float)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(float));
+            return ONI_STATUS_ERROR;
+        }
+        //*(static_cast<float*>(data)) = COLOR_VERTICAL_FOV;
+        *(static_cast<float*>(data)) = VERTICAL_FOV;
+        std::cout << "--> ONI_STREAM_PROPERTY_VERTICAL_FOV" << std::endl;
+        return ONI_STATUS_OK;
+
+    case ONI_STREAM_PROPERTY_MAX_VALUE:             // int
+        if (*pDataSize != sizeof(int)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(int));
+            return ONI_STATUS_ERROR;
+        }
+        *(static_cast<int*>(data)) = MAX_VALUE;
+        std::cout << "--> ONI_STREAM_PROPERTY_MAX_VALUE" << std::endl;
+        return ONI_STATUS_OK;
+
+    case ONI_STREAM_PROPERTY_MIN_VALUE:             // int
+        if (*pDataSize != sizeof(int)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(int));
+            return ONI_STATUS_ERROR;
+        }
+        *(static_cast<int*>(data)) = 0;
+        std::cout << "--> ONI_STREAM_PROPERTY_MIN_VALUE" << std::endl;
+        return ONI_STATUS_OK;
+
+    case XN_STREAM_PROPERTY_PIXEL_REGISTRATION:     // XnPixelRegistration (get only)
+    case XN_STREAM_PROPERTY_WHITE_BALANCE_ENABLED:  // unsigned long long
+        //case XN_STREAM_PROPERTY_HOLE_FILTER:            // unsigned long long
+        //case XN_STREAM_PROPERTY_REGISTRATION_TYPE:      // XnProcessingType
+    case XN_STREAM_PROPERTY_AGC_BIN:                // XnDepthAGCBin*
+        //case XN_STREAM_PROPERTY_PIXEL_SIZE_FACTOR:      // unsigned long long
+        //case XN_STREAM_PROPERTY_DCMOS_RCMOS_DISTANCE:   // double
+        std::cout << "--> ccccccccccccccccccccccc" << std::endl;
+        return ONI_STATUS_NOT_SUPPORTED;
+
+    case XN_STREAM_PROPERTY_CLOSE_RANGE:            // unsigned long long
+        if (*pDataSize != sizeof(unsigned long long)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(int));
+            return ONI_STATUS_ERROR;
+        }      *(static_cast<unsigned long long*>(data)) = 0;
+        std::cout << "--> XN_STREAM_PROPERTY_CLOSE_RANGE" << std::endl;
+        return ONI_STATUS_OK;
+
+    case XN_STREAM_PROPERTY_GAIN:                   // unsigned long long
+        if (*pDataSize != sizeof(unsigned long long)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(unsigned long long));
+            return ONI_STATUS_ERROR;
+        }
+        *(static_cast<unsigned long long*>(data)) = GAIN_VAL;
+        std::cout << "--> XN_STREAM_PROPERTY_GAIN" << std::endl;
+        return ONI_STATUS_OK;
+
+    case XN_STREAM_PROPERTY_CONST_SHIFT:            // unsigned long long
+        if (*pDataSize != sizeof(unsigned long long)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(unsigned long long));
+            return ONI_STATUS_ERROR;
+        }
+        *(static_cast<unsigned long long*>(data)) = CONST_SHIFT_VAL;
+        std::cout << "--> XN_STREAM_PROPERTY_CONST_SHIFT" << std::endl;
+        return ONI_STATUS_OK;
+
+    case XN_STREAM_PROPERTY_MAX_SHIFT:              // unsigned long long
+        if (*pDataSize != sizeof(unsigned long long)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(unsigned long long));
+            return ONI_STATUS_ERROR;
+        }
+        *(static_cast<unsigned long long*>(data)) = MAX_SHIFT_VAL;
+        std::cout << "--> XN_STREAM_PROPERTY_MAX_SHIFT" << std::endl;
+        return ONI_STATUS_OK;
+
+    case XN_STREAM_PROPERTY_PARAM_COEFF:            // unsigned long long
+        if (*pDataSize != sizeof(unsigned long long)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(unsigned long long));
+            return ONI_STATUS_ERROR;
+        }
+        *(static_cast<unsigned long long*>(data)) = PARAM_COEFF_VAL;
+        std::cout << "--> XN_STREAM_PROPERTY_PARAM_COEFF" << std::endl;
+        return ONI_STATUS_OK;
+
+    case XN_STREAM_PROPERTY_SHIFT_SCALE:            // unsigned long long
+        if (*pDataSize != sizeof(unsigned long long)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(unsigned long long));
+            return ONI_STATUS_ERROR;
+        }
+        *(static_cast<unsigned long long*>(data)) = SHIFT_SCALE_VAL;
+        std::cout << "--> XN_STREAM_PROPERTY_SHIFT_SCALE" << std::endl;
+        return ONI_STATUS_OK;
+
+    case XN_STREAM_PROPERTY_ZERO_PLANE_DISTANCE:    // unsigned long long
+        if (*pDataSize != sizeof(unsigned long long)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(unsigned long long));
+            return ONI_STATUS_ERROR;
+        }
+        *(static_cast<unsigned long long*>(data)) = ZERO_PLANE_DISTANCE_VAL;
+        std::cout << "--> XN_STREAM_PROPERTY_ZERO_PLANE_DISTANCE" << std::endl;
+        return ONI_STATUS_OK;
+
+    case XN_STREAM_PROPERTY_ZERO_PLANE_PIXEL_SIZE:  // double
+        if (*pDataSize != sizeof(double)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(double));
+            return ONI_STATUS_ERROR;
+        }
+        *(static_cast<double*>(data)) = ZERO_PLANE_PIXEL_SIZE_VAL;
+        std::cout << "--> XN_STREAM_PROPERTY_ZERO_PLANE_PIXEL_SIZE" << std::endl;
+        return ONI_STATUS_OK;
+
+    case XN_STREAM_PROPERTY_EMITTER_DCMOS_DISTANCE: // double
+        if (*pDataSize != sizeof(double)) {
+            printf("Unexpected size: %d != %lu\n", *pDataSize, sizeof(double));
+            return ONI_STATUS_ERROR;
+        }
+        *(static_cast<double*>(data)) = EMITTER_DCMOS_DISTANCE_VAL;
+        std::cout << "--> XN_STREAM_PROPERTY_EMITTER_DCMOS_DISTANCE" << std::endl;
+        return ONI_STATUS_OK;
+
+    case XN_STREAM_PROPERTY_S2D_TABLE:              // OniDepthPixel[]
+        /*
+      *pDataSize = sizeof(S2D);
+      //std::copy(&S2D[0], &S2D[*pDataSize / sizeof(uint16_t)], static_cast<OniDepthPixel*>(data));
+      memcpy(data,S2D,*pDataSize);
+*/
+        /* // works with skel,no hands
+      *pDataSize = S2D_Size;
+      memcpy(data,S2D_Blob,S2D_Size);
+      */
+        /*
+      *pDataSize = sizeof(S2D_exp);
+      memcpy(data,S2D_exp,*pDataSize);
+*/
+        *pDataSize = sizeof(S2D_);
+        memcpy(data,S2D_,sizeof(S2D_));
+        std::cout << "--> XN_STREAM_PROPERTY_S2D_TABLE" << std::endl;
+
+        return ONI_STATUS_OK;
+
+    case XN_STREAM_PROPERTY_D2S_TABLE:              // unsigned short[]
+        /*
+      *pDataSize = sizeof(D2S);
+      //std::copy(&D2S[0], &D2S[*pDataSize / sizeof(uint8_t)], static_cast<unsigned short*>(data));
+      memcpy(data,D2S,*pDataSize);
+*/
+        /* // works with skel,no hands
+      *pDataSize = D2S_Size;
+      memcpy(data,D2S_Blob,D2S_Size);
+*/
+        /*
+      *pDataSize = sizeof(D2S_exp);
+      memcpy(data,D2S_exp,*pDataSize);
+*/
+        *pDataSize = sizeof(D2S_);
+        memcpy(data,D2S_,sizeof(D2S_));
+        std::cout << "--> XN_STREAM_PROPERTY_D2S_TABLE" << std::endl;
+
+        return ONI_STATUS_OK;
+    case XN_STREAM_PROPERTY_DEPTH_SENSOR_CALIBRATION_INFO:              // unsigned short[]
+        *pDataSize = sizeof(DepthSensorCalibBlob);
+        memcpy(data,DepthSensorCalibBlob,sizeof(DepthSensorCalibBlob));
+        std::cout << "--> XN_STREAM_PROPERTY_DEPTH_SENSOR_CALIBRATION_INFO" << std::endl;
+
+        return ONI_STATUS_OK;
+
+
+    case XN_STREAM_PROPERTY_HOLE_FILTER:
+        *pDataSize = sizeof(unsigned long long);
+        *(static_cast<unsigned long long*>(data)) = 1;
+        std::cout << "--> XN_STREAM_PROPERTY_HOLE_FILTER" << std::endl;
+        return ONI_STATUS_OK;
+    case XN_STREAM_PROPERTY_REGISTRATION_TYPE:
+        *pDataSize = sizeof(unsigned long long);
+        *(static_cast<unsigned long long*>(data)) = 0;
+        std::cout << "--> XN_STREAM_PROPERTY_REGISTRATION_TYPE" << std::endl;
+        return ONI_STATUS_OK;
+    case XN_STREAM_PROPERTY_PIXEL_SIZE_FACTOR:
+        *pDataSize = sizeof(unsigned long long);
+        *(static_cast<unsigned long long*>(data)) = 1;
+        std::cout << "--> XN_STREAM_PROPERTY_PIXEL_SIZE_FACTOR" << std::endl;
+        return ONI_STATUS_OK;
+    case XN_STREAM_PROPERTY_DCMOS_RCMOS_DISTANCE:
+        *pDataSize = sizeof(double);
+        *(static_cast<double*>(data)) = 2.63;
+        std::cout << "--> XN_STREAM_PROPERTY_DCMOS_RCMOS_DISTANCE" << std::endl;
+        return ONI_STATUS_OK;
+    case XN_STREAM_PROPERTY_GMC_MODE:
+        *pDataSize = sizeof(int);
+        *(static_cast<int*>(data)) = 1;
+        std::cout << "--> XN_STREAM_PROPERTY_GMC_MODE" << std::endl;
+        return ONI_STATUS_OK;
+    case XN_STREAM_PROPERTY_GMC_DEBUG:
+        *pDataSize = sizeof(int);
+        *(static_cast<int*>(data)) = 0;
+        std::cout << "--> XN_STREAM_PROPERTY_GMC_DEBUG" << std::endl;
+        return ONI_STATUS_OK;
+    case XN_STREAM_PROPERTY_WAVELENGTH_CORRECTION:
+        *pDataSize = sizeof(int);
+        *(static_cast<int*>(data)) = 0;
+        std::cout << "--> XN_STREAM_PROPERTY_WAVELENGTH_CORRECTION" << std::endl;
+        return ONI_STATUS_OK;
+    case XN_STREAM_PROPERTY_WAVELENGTH_CORRECTION_DEBUG:
+        *pDataSize = sizeof(int);
+        *(static_cast<int*>(data)) = 0;
+        std::cout << "--> XN_STREAM_PROPERTY_WAVELENGTH_CORRECTION_DEBUG" << std::endl;
+        return ONI_STATUS_OK;
+
+
+    }
+}
+
+
 void DepthStream::populateFrame(void* data, OniFrame* frame) const {	
 	frame->sensorType = sensor_type;
 	frame->stride = video_mode.resolutionX*sizeof(uint16_t);
@@ -84,6 +335,63 @@ void DepthStream::populateFrame(void* data, OniFrame* frame) const {
     }
 }
 
+
+void DepthStream::notifyAllProperties()
+{
+    std::cout << "notifyAllProperties" << std::endl;
+
+    double nDouble;
+    int size = sizeof(nDouble);
+    getProperty(XN_STREAM_PROPERTY_ZERO_PLANE_PIXEL_SIZE, &nDouble, &size);
+    raisePropertyChanged(XN_STREAM_PROPERTY_ZERO_PLANE_PIXEL_SIZE, &nDouble, size);
+
+    getProperty(XN_STREAM_PROPERTY_EMITTER_DCMOS_DISTANCE, &nDouble, &size);
+    raisePropertyChanged(XN_STREAM_PROPERTY_EMITTER_DCMOS_DISTANCE, &nDouble, size);
+
+    int nInt;
+    size = sizeof(nInt);
+    getProperty(XN_STREAM_PROPERTY_GAIN, &nInt, &size);
+    raisePropertyChanged(XN_STREAM_PROPERTY_GAIN, &nInt, size);
+
+    getProperty(XN_STREAM_PROPERTY_CONST_SHIFT, &nInt, &size);
+    raisePropertyChanged(XN_STREAM_PROPERTY_CONST_SHIFT, &nInt, size);
+
+    getProperty(XN_STREAM_PROPERTY_MAX_SHIFT, &nInt, &size);
+    raisePropertyChanged(XN_STREAM_PROPERTY_MAX_SHIFT, &nInt, size);
+
+    getProperty(XN_STREAM_PROPERTY_SHIFT_SCALE, &nInt, &size);
+    raisePropertyChanged(XN_STREAM_PROPERTY_SHIFT_SCALE, &nInt, size);
+
+    getProperty(XN_STREAM_PROPERTY_ZERO_PLANE_DISTANCE, &nInt, &size);
+    raisePropertyChanged(XN_STREAM_PROPERTY_ZERO_PLANE_DISTANCE, &nInt, size);
+
+    getProperty(ONI_STREAM_PROPERTY_MAX_VALUE, &nInt, &size);
+    raisePropertyChanged(ONI_STREAM_PROPERTY_MAX_VALUE, &nInt, size);
+
+    unsigned short nBuff[10001];
+    size = sizeof(S2D_);
+    getProperty(XN_STREAM_PROPERTY_S2D_TABLE, nBuff, &size);
+    raisePropertyChanged(XN_STREAM_PROPERTY_S2D_TABLE, nBuff, size);
+
+    size = sizeof(D2S_);
+    getProperty(XN_STREAM_PROPERTY_D2S_TABLE, nBuff, &size);
+    raisePropertyChanged(XN_STREAM_PROPERTY_D2S_TABLE, nBuff, size);
+
+    oni::driver::StreamBase::notifyAllProperties();
+}
+
+OniStatus DepthStream::SetCropping(OniCropping* cropping)
+{
+    std::cout << "SetCropping" << std::endl;
+    return ONI_STATUS_OK;
+}
+
+OniStatus DepthStream::GetCropping(OniCropping* cropping)
+{
+    std::cout << "GetCropping" << std::endl;
+    return ONI_STATUS_OK;
+
+}
 
 /* depth video modes reference
 
