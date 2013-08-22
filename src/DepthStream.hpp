@@ -12,7 +12,6 @@
 #include "S2D_exp.h"
 #include "D2S_exp.h"
 
-#include <iostream>
 
 namespace FreenectDriver {
   class DepthStream : public VideoStream {
@@ -28,7 +27,7 @@ namespace FreenectDriver {
     // from DepthKinectStream.cpp - please check
     static const int MAX_VALUE = 10000;
     static const unsigned long long GAIN_VAL = 42;
-    static const unsigned long long CONST_SHIFT_VAL = 200; //<< should be 800  https://groups.google.com/forum/#!msg/openkinect/tc45lqPLU2Y/GMglTFh9ecAJ
+    static const unsigned long long CONST_SHIFT_VAL = 200;
     static const unsigned long long MAX_SHIFT_VAL = 2047;
     static const unsigned long long PARAM_COEFF_VAL = 4;
     static const unsigned long long SHIFT_SCALE_VAL = 10;
@@ -44,6 +43,8 @@ namespace FreenectDriver {
     static FreenectDepthModeMap getSupportedVideoModes();
     virtual OniStatus setVideoMode(OniVideoMode requested_mode);
     void populateFrame(void* data, OniFrame* frame) const;
+
+    void copyDepthPixelsStraight(unsigned short* source, int numPoints, OniFrame* pFrame) const;
 
   public:
     DepthStream(Freenect::FreenectDevice* pDevice);

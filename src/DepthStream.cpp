@@ -53,34 +53,64 @@ inline unsigned short filterReliableDepthValue(unsigned short value)
     return value < DepthStream::MAX_VALUE ? value : 0;
 }
 
-void DepthStream::populateFrame(void* data, OniFrame* frame) const {	
-	frame->sensorType = sensor_type;
-	frame->stride = video_mode.resolutionX*sizeof(uint16_t);
-	frame->cropOriginX = frame->cropOriginY = 0;
-	frame->croppingEnabled = FALSE;	
-	
-	// copy stream buffer from freenect
-	uint16_t* data_ptr = static_cast<uint16_t*>(data);
-	uint16_t* frame_data = static_cast<uint16_t*>(frame->data);
-	if (mirroring)
-	{
-		for (unsigned int i = 0; i < frame->dataSize / 2; i++)
-		{
-			// find corresponding mirrored pixel
-			unsigned int row = i / video_mode.resolutionX;
-			unsigned int col = video_mode.resolutionX - (i % video_mode.resolutionX);
-			unsigned int target = (row * video_mode.resolutionX) + col;
-			// copy it to this pixel
-            frame_data[i] = filterReliableDepthValue(data_ptr[target]);
-		}
-	}
-	else
-    {
-        for (unsigned int i = 0; i < frame->dataSize / 2; i++)
-            frame_data[i] = filterReliableDepthValue(data_ptr[i]);
+void DepthStream::populateFrame(void* data, OniFrame* frame) const
+{
+    if (!_cropping.enabled)
+    {   // no croping
+        frame->cropOriginX = frame->cropOriginY = 0;
+        frame->croppingEnabled = FALSE;
+    }
+    else
+    {   // croping
+        frame->height = _cropping.height;
+        frame->width  = _cropping.width;
+        frame->cropOriginX = _cropping.originX;
+        frame->cropOriginY = _cropping.originY;
+        frame->croppingEnabled = TRUE;
+    }
 
-        //mempcpy(frame_data,data_ptr,frame->dataSize);
-        //std::copy(data_ptr, data_ptr+frame->dataSize / 2, frame_data);
+    frame->sensorType = sensor_type;
+	frame->stride = video_mode.resolutionX*sizeof(uint16_t);
+
+    int numPoints = video_mode.resolutionY * video_mode.resolutionX;
+
+    // populate the pixel data
+    copyDepthPixelsStraight((unsigned short*)data, numPoints, frame);
+}
+
+void DepthStream::copyDepthPixelsStraight(unsigned short* source, int numPoints, OniFrame* pFrame) const
+{
+    unsigned short* target = (unsigned short*) pFrame->data;
+
+    const unsigned int width = pFrame->width;
+    const unsigned int height = pFrame->height;
+    const unsigned int skipWidth = video_mode.resolutionX - width;
+
+    // Offset the starting position
+    source += pFrame->cropOriginX + pFrame->cropOriginY * video_mode.resolutionX;
+
+    if(mirroring)
+    {
+        target = target + width;
+
+        for (unsigned int y = 0; y < height; y++)
+        {
+            for (unsigned int x = 0; x < width; x++)
+                *(target--) = filterReliableDepthValue(*(source++));
+
+            source += skipWidth;
+            target += 2 * width;
+        }
+    }
+    else
+    {
+        for (unsigned int y = 0; y < height; y++)
+        {
+            for (unsigned int x = 0; x < width; x++)
+                *(target++) = filterReliableDepthValue(*(source++));
+
+            source += skipWidth;
+        }
     }
 }
 
