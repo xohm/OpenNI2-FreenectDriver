@@ -91,7 +91,7 @@ void DepthStream::copyDepthPixelsStraight(unsigned short* source, int numPoints,
 
     if(mirroring)
     {
-        target = target + width;
+        target = target + width -1;
 
         for (unsigned int y = 0; y < height; y++)
         {
