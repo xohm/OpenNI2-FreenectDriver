@@ -49,9 +49,22 @@ void InfraRedStream::populateFrame(void* data, OniFrame* frame) const {
       return;
 
     case ONI_PIXEL_FORMAT_GRAY8:
-      unsigned char* data_ptr = static_cast<unsigned char*>(data);
-      unsigned char* frame_data = static_cast<unsigned char*>(frame->data);
-      if (mirroring) {
+      unsigned char* source = static_cast<unsigned char*>(data);
+      unsigned char* target = static_cast<unsigned char*>(frame->data);
+      if (mirroring)
+      {
+          // go to the end of this line
+          target = target + (video_mode.resolutionX -1);
+
+          for (unsigned int y = 0; y < video_mode.resolutionY; y++)
+          {
+              for (unsigned int x = 0; x < video_mode.resolutionX; x++)
+                  *(target--)   = *(source++);
+
+              target += 2 * video_mode.resolutionX;
+          }
+
+          /*
           for (unsigned int i = 0; i < frame->dataSize; i++)
           {
               // find corresponding mirrored pixel
@@ -61,10 +74,10 @@ void InfraRedStream::populateFrame(void* data, OniFrame* frame) const {
               // copy it to this pixel
               frame_data[i] = data_ptr[target];
           }
+          */
       }
       else
-          memcpy(frame_data,data_ptr,frame->dataSize);
-        //std::copy(data_ptr, data_ptr+frame->dataSize, frame_data);
+          memcpy(target,source,frame->dataSize);
 
       return;
   }
